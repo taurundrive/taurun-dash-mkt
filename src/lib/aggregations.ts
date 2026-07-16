@@ -79,7 +79,10 @@ export function performanceTotals(
   const convClicks = convAggs.reduce((s, c) => s + c.clicks, 0);
   const convLeads = convAggs.reduce((s, c) => s + c.leads, 0);
   const totalSales = data.sales
-    .filter((s) => inRange(s.date, range.start, range.end))
+    .filter((s) => {
+      const d = s.date.slice(0, 7);
+      return d >= range.start.slice(0, 7) && d <= range.end.slice(0, 7);
+    })
     .reduce((s, p) => s + p.amount, 0);
   return {
     campaignsCount: aggs.length,
