@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Fundo opcional para maior contraste em abas escuras ou claras -->
+  <rect width="64" height="64" rx="16" fill="#09090b"/>
+  
+  <!-- Barra superior horizontal do T (Escudo) -->
+  <rect x="10" y="12" width="44" height="11" rx="2.5" fill="white"/>
+  
+  <!-- Bloco inferior esquerdo (Haste esquerda do T, canto inferior esquerdo arredondado) -->
+  <path d="M 10 27 L 30 27 L 30 52 L 22 52 C 15.37 52 10 46.63 10 40 Z" fill="white"/>
+  
+  <!-- Bloco inferior direito (Haste direita do T, canto inferior direito arredondado) -->
+  <path d="M 34 27 L 54 27 L 54 40 C 54 46.63 48.63 52 42 52 L 34 52 Z" fill="white"/>
+</svg>
