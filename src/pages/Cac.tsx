@@ -100,9 +100,9 @@ function CacContent() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 pt-1">
           <StatBlock label="Investido" value={currentRow ? formatCurrency(currentRow.invested) : "—"} />
           <StatBlock label="Leads pagos" value={currentRow ? formatNumber(currentRow.paidLeads) : "—"} />
-          <StatBlock label="Vendas pagas" value={currentRow ? formatNumber(currentRow.closedSales) : "—"} />
+          <StatBlock label="Vendas totais" value={currentRow ? formatNumber(currentRow.closedSales) : "—"} />
           <StatBlock label="Receita pago" value={currentRow?.paidRevenue ? formatCurrency(currentRow.paidRevenue) : "—"} />
-          <StatBlock label="Leads → fechadas" value={currentRow?.leadsClosedSales ? `${formatNumber(currentRow.leadsClosedSales)} vendas` : "—"} />
+          <StatBlock label="Vendas pagas" value={currentRow?.leadsClosedSales ? `${formatNumber(currentRow.leadsClosedSales)} vendas` : "—"} />
         </div>
       </div>
 
@@ -131,13 +131,13 @@ function CacContent() {
                 <Th className="text-left">Mês</Th>
                 <Th>Investido</Th>
                 <Th>Leads</Th>
-                <Th>Vendas</Th>
+                <Th>Vendas Totais</Th>
                 <Th>Receita pago</Th>
                 <Th>ROAS</Th>
                 <Th>CAC</Th>
                 <Th>Conv.</Th>
                 <Th>CPL</Th>
-                <Th>Leads→Fechadas</Th>
+                <Th>Vendas Pagas</Th>
               </tr>
             </thead>
             <tbody>
