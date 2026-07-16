@@ -1,0 +1,13 @@
+project_id = "gqdzxvjydugheoxemfqp"
+
+[functions.ingest-campaigns]
+verify_jwt = false
+
+[functions.ingest-instagram]
+verify_jwt = false
+
+[functions.ingest-whatsapp-leads]
+verify_jwt = false
+
+[functions.leads-total]
+verify_jwt = false

@@ -1,0 +1,225 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────────
+   DESIGN SYSTEM: MODE — UI Kit (Black v.1.0.1) + TAURUN CCO
+   MOTION: Apple Designing Fluid Interfaces (WWDC 2018)
+───────────────────────────────────────────────────────────── */
+
+@layer base {
+  :root {
+    /* Fundo raiz da aplicação — Preto Obsidiana Puro (#000000) */
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+
+    /* Cartões e containers principais (#0a0a0d) */
+    --card: 240 13% 5%;
+    --card-foreground: 0 0% 100%;
+
+    /* Popovers, menus dropdown e tooltips (#131318) */
+    --popover: 240 13% 8%;
+    --popover-foreground: 0 0% 100%;
+
+    --primary: 210 90% 60%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 13% 8%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 240 10% 11%;
+    --muted-foreground: 240 5% 65%;
+
+    --accent: 210 90% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --success: 158 64% 52%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Bordas */
+    --border: 0 0% 100% / 6%;
+    --input: 0 0% 100% / 10%;
+    --ring: 210 90% 60%;
+    --radius: 1rem;
+
+    /* Sidebar */
+    --sidebar-background: 240 13% 5%;
+    --sidebar-foreground: 240 5% 65%;
+    --sidebar-primary: 210 90% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 100% / 4%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 100% / 6%;
+    --sidebar-ring: 210 90% 60%;
+
+    /* ── Apple Motion Tokens ────────────────────────────────── */
+    /* Easing: ease-out padrão para micro-interações (responsivo e gracioso) */
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    /* Easing: spring-like para entradas (sem bounce, critically damped) */
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* Easing: para reversão / dismissal */
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+
+    /* Durações */
+    --duration-press: 80ms;       /* resposta a pointer-down — deve ser imperceptível */
+    --duration-micro: 120ms;      /* hover, badge transitions */
+    --duration-enter: 240ms;      /* entradas de elementos na tela */
+    --duration-sheet: 360ms;      /* painéis, modais, drawers */
+
+    /* ── Apple Glass (translucent materials) ──────────────── */
+    --glass-bg: rgba(10, 10, 13, 0.72);
+    --glass-bg-hover: rgba(10, 10, 13, 0.82);
+    --glass-border: rgba(255, 255, 255, 0.06);
+    --glass-border-hover: rgba(255, 255, 255, 0.14);
+    --glass-blur: 24px;           /* blur denso — Apple usa backdrop-blur forte para separar camadas */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  /* Reset de transição base: tudo parte de zero velocidade para respeitar interruptibilidade */
+  *, *::before, *::after {
+    transition-timing-function: var(--ease-out);
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "ss01", "cv11";
+    /* Suaviza a renderização de subpixel para tipografia Apple-style */
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  html {
+    color-scheme: dark;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+/* ── Apple Press: resposta imediata a pointer-down ────────── */
+/* Regra de ouro: o feedback de toque deve acontecer em pointer-down,
+   nunca só no click. scale(0.97) é o sweet spot — perceptível mas não exagerado. */
+@layer utilities {
+  .apple-press {
+    transition: transform var(--duration-press) var(--ease-out),
+                box-shadow var(--duration-micro) var(--ease-out),
+                border-color var(--duration-micro) var(--ease-out),
+                background-color var(--duration-micro) var(--ease-out);
+  }
+  .apple-press:active {
+    transform: scale(0.97);
+  }
+
+  /* Variante para elementos menores (ícones, botões tiny) */
+  .apple-press-sm:active {
+    transform: scale(0.94);
+    transition: transform 60ms var(--ease-out);
+  }
+
+  /* Glass material: camada translúcida com blur — o substituto Apple do card opaco */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+  }
+  .glass:hover {
+    background: var(--glass-bg-hover);
+    border-color: var(--glass-border-hover);
+  }
+}
+
+/* ── Reduced Motion: respeitar preferência do sistema ──────── */
+/* Apple toma isso muito a sério. Nenhuma animação deve incomodar
+   pessoas com vestibular disorders ou sensibilidade ao movimento. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .apple-press:active,
+  .apple-press-sm:active {
+    transform: none !important;
+  }
+}
+
+/* ── Keyframes de entrada ──────────────────────────────────────
+   Emil Kowalski: nunca animar de scale(0) — partir de scale(0.96) + opacity: 0
+   Apple: ease-out starting fast for entering elements
+   Duration: 240ms — within the "occasional" budget
+─────────────────────────────────────────────────────────────── */
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Entrada só vertical (sem scale) — para linhas de tabela */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Shimmer: esqueleto de carregamento ────────────────────────
+   Gradiente animado que simula luz percorrendo a superfície —
+   muito mais premium que um spinner ou texto "Carregando..."
+─────────────────────────────────────────────────────────────── */
+@keyframes shimmer {
+  from {
+    background-position: -200% center;
+  }
+  to {
+    background-position: 200% center;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 0%,
+    rgba(255, 255, 255, 0.08) 30%,
+    rgba(255, 255, 255, 0.12) 50%,
+    rgba(255, 255, 255, 0.08) 70%,
+    rgba(255, 255, 255, 0.03) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+/* ── Utilitários de stagger ────────────────────────────────────
+   Cada card recebe um delay crescente via CSS custom property --stagger
+   Implementado por inline style no componente: style={{ '--stagger': index }}
+   O componente então usa animation-delay: calc(var(--stagger) * 60ms)
+─────────────────────────────────────────────────────────────── */
+.card-animated {
+  animation: card-enter 240ms var(--ease-out) both;
+  animation-delay: calc(var(--stagger, 0) * 60ms);
+}
