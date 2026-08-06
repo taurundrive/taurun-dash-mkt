@@ -1,11 +1,35 @@
 import { CSSProperties } from "react";
+import { HelpCircle } from "lucide-react";
 import { PaidIndicator } from "@/lib/aggregations";
 import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface Props {
   indicator: PaidIndicator;
   /** Índice no grid — usado para delay staggered */
   index?: number;
+}
+
+function getHelpDescription(key: string): string {
+  switch (key) {
+    case "roas":
+      return "ROAS Pago (Retorno sobre Investimento em Mídia): Mede a eficiência do investimento de tráfego pago considerando apenas a receita das vendas de leads do WhatsApp correspondidos na safra.";
+    case "costRevenue":
+    case "cost_revenue":
+      return "Custo de Mídia / Receita: Percentual da receita paga que foi consumido pelo investimento em anúncios. Idealmente abaixo de 15%.";
+    case "cac":
+      return "CAC Pago (Custo de Aquisição de Cliente): Custo médio de mídia para adquirir um cliente pago. O cálculo divide o investimento total pelas vendas associadas a leads do WhatsApp daquela safra.";
+    case "conversion":
+      return "Taxa de Conversão de Vendas: Percentual de leads de WhatsApp que converteram em vendas no período correspondente.";
+    case "cpl":
+      return "CPL Médio (Custo por Lead): Investimento de anúncios de conversão dividido pelo total de leads de WhatsApp recebidos.";
+    default:
+      return "";
+  }
 }
 
 /**
@@ -22,6 +46,7 @@ interface Props {
  */
 export function IndicatorCard({ indicator, index = 0 }: Props) {
   const { title, formula, benchmark, display, statusLabel, color } = indicator;
+  const helpDesc = getHelpDescription(indicator.key);
 
   return (
     <div
@@ -44,10 +69,24 @@ export function IndicatorCard({ indicator, index = 0 }: Props) {
       {/* Cabeçalho */}
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[11px] font-medium font-mono uppercase tracking-wider text-zinc-500 group-hover:text-zinc-400 transition-colors duration-[120ms]">
-            {title}
-          </p>
-          <p className="text-[10px] font-mono text-zinc-600 mt-1 leading-relaxed">{formula}</p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-[11px] font-medium font-mono uppercase tracking-wider text-zinc-500 group-hover:text-zinc-400 transition-colors duration-[120ms]">
+              {title}
+            </p>
+            {helpDesc && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button className="text-zinc-500 hover:text-zinc-300 transition-colors outline-none apple-press-sm">
+                    <HelpCircle className="w-3.5 h-3.5" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-[260px] bg-[#131318] border border-white/[0.08] text-xs text-zinc-300 p-2.5 rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.7)] backdrop-blur-xl">
+                  {helpDesc}
+                </TooltipContent>
+              </Tooltip>
+            )}
+          </div>
+          <p className="text-[11px] font-mono text-zinc-600 mt-1 leading-relaxed">{formula}</p>
         </div>
 
         {/* Badge: âncora espacial — cor transiciona suavemente ao mudar de status */}
@@ -61,7 +100,7 @@ export function IndicatorCard({ indicator, index = 0 }: Props) {
               transition: "background-color 200ms cubic-bezier(0.23, 1, 0.32, 1)",
             }}
           />
-          <span className="text-[10px] font-mono font-medium uppercase tracking-[0.06em] text-zinc-300">
+          <span className="text-[11px] font-mono font-medium uppercase tracking-[0.06em] text-zinc-300">
             {statusLabel}
           </span>
         </div>

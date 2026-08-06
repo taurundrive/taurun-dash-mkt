@@ -49,8 +49,8 @@ export function AppSidebar() {
         <div>
           <div
             className={cn(
-              "px-[18px] py-5 border-b border-white/[0.06] transition-[padding] duration-[120ms]",
-              collapsed && "px-3 py-4 flex justify-center"
+              "px-4 py-5 border-b border-white/[0.06] transition-[padding] duration-[120ms]",
+              collapsed && "px-0 py-4 flex justify-center"
             )}
           >
             {collapsed ? (
@@ -67,7 +67,7 @@ export function AppSidebar() {
                 <div className="text-lg font-bold font-sans text-white leading-tight mt-1 tracking-[-0.02em]">
                   TAURUN MKT
                 </div>
-                <div className="text-[10px] text-zinc-600 font-mono mt-0.5">
+                <div className="text-[11px] text-zinc-600 font-mono mt-0.5">
                   marketing.taurun.com
                 </div>
               </>
@@ -98,7 +98,7 @@ export function AppSidebar() {
                           "hover:bg-white/[0.05] hover:text-white",
                           "transition-[background-color,color,border-color] duration-[80ms]",
                           "group",
-                          collapsed && "justify-center px-2 mx-1.5"
+                          collapsed && "justify-center px-0 mx-0 w-8 h-8"
                         )}
                         activeClassName={cn(
                           // Ativo: não apenas cor — borda lateral como âncora espacial física
@@ -124,8 +124,8 @@ export function AppSidebar() {
         {/* Footer: Sign out */}
         <div
           className={cn(
-            "px-[18px] py-4 border-t border-white/[0.06] mt-auto transition-[padding] duration-[120ms]",
-            collapsed && "px-2 py-3 flex flex-col items-center"
+            "p-2 border-t border-white/[0.06] mt-auto transition-[padding] duration-[120ms]",
+            collapsed && "p-2 flex flex-col items-center"
           )}
         >
           {/* Botão de saída: press imediato — feedback em pointer-down */}
@@ -133,17 +133,17 @@ export function AppSidebar() {
             onClick={handleSignOut}
             title="Sair"
             className={cn(
-              "apple-press-sm flex items-center gap-2 text-xs font-sans font-medium",
-              "text-zinc-500 hover:text-zinc-200 w-full rounded-xl py-1.5",
-              "transition-colors duration-[80ms]",
-              collapsed ? "justify-center px-0" : "px-2 hover:bg-white/[0.04]"
+              "apple-press-sm flex items-center gap-3 text-xs font-sans font-medium",
+              "text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.04] rounded-xl px-3 py-2.5",
+              "transition-[background-color,color,transform] duration-[80ms]",
+              collapsed ? "justify-center px-0 mx-0 w-8 h-8" : "mx-2 w-[calc(100%-16px)]"
             )}
           >
             <LogOut className="w-4 h-4 shrink-0" />
             {!collapsed && <span>Sair</span>}
           </button>
           {!collapsed && (
-            <div className="mt-2.5 px-2 text-[10px] font-mono text-zinc-700">
+            <div className="mt-2.5 px-4 text-[11px] font-mono text-zinc-700">
               Atualizado agora · v1.0.1
             </div>
           )}

@@ -53,7 +53,7 @@ export function CampaignsTable({ rows }: { rows: CampaignAggregate[] }) {
           <span className="text-[11px] font-medium font-mono uppercase tracking-wider text-zinc-500 group-hover:text-zinc-400 transition-colors">Campanhas — tráfego pago</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] px-3 py-1 rounded-full bg-primary/15 text-primary font-mono font-semibold uppercase tracking-wider border border-primary/30 transition-transform duration-200 group-hover:scale-105">
+          <span className="text-[11px] px-3 py-1 rounded-full bg-primary/15 text-primary font-mono font-semibold uppercase tracking-wider border border-primary/30 transition-transform duration-200 group-hover:scale-105">
             Período atual
           </span>
         </div>
@@ -129,12 +129,12 @@ export function CampaignsTable({ rows }: { rows: CampaignAggregate[] }) {
                           {c.name}
                         </div>
                         <div className="flex items-center gap-1.5 mt-1">
-                          <span className="inline-block text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.04] border border-white/[0.06] text-zinc-400">
+                          <span className="inline-block text-[11px] font-mono px-2 py-0.5 rounded bg-white/[0.04] border border-white/[0.06] text-zinc-400">
                             {shortType(c.type)}
                           </span>
                           {!c.computesRoas && (
                             <span
-                              className="inline-block text-[10px] font-mono px-2 py-0.5 rounded bg-white/[0.03] text-zinc-500 border border-white/[0.06]"
+                              className="inline-block text-[11px] font-mono px-2 py-0.5 rounded bg-white/[0.03] text-zinc-500 border border-white/[0.06]"
                               title="Não entra no cálculo de ROAS/CAC"
                             >
                               Fora ROAS

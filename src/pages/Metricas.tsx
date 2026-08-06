@@ -111,13 +111,10 @@ function MetricasContent() {
 
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto w-full">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h2 className="font-heading text-sm font-bold uppercase tracking-wider">Métricas do Instagram</h2>
-          <p className="text-xs text-muted-foreground mt-1">
-            Engajamento, alcance e crescimento do perfil — {label}
-          </p>
-        </div>
+      <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
+        <p className="text-xs font-mono font-medium text-zinc-400 uppercase tracking-wider">
+          Engajamento, alcance e crescimento do perfil do Instagram — {label}
+        </p>
         <div className="flex items-center gap-1.5 bg-[#0a0a0d] border border-white/[0.06] rounded-2xl p-1.5 shadow-sm">
           {([7, 15, 30] as PresetDays[]).map((d) => (
             <Button

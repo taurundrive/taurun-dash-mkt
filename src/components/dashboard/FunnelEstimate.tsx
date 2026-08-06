@@ -33,7 +33,7 @@ function FunnelCard({
     <Card className="p-6 bg-[#0a0a0d]/90 border border-white/[0.06] rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.65)] backdrop-blur-xl hover:border-white/[0.15] transition-all duration-200 ease-out group">
       <div className="flex items-center justify-between mb-5">
         <span className="text-[11px] font-medium font-mono uppercase tracking-wider text-zinc-500 group-hover:text-zinc-400 transition-colors">{title}</span>
-        <span className="text-[10px] px-2.5 py-1 rounded-lg font-mono font-medium uppercase tracking-[0.08em] bg-white/[0.03] border border-white/[0.06] text-zinc-300">
+        <span className="text-[11px] px-2.5 py-1 rounded-lg font-mono font-medium uppercase tracking-[0.08em] bg-white/[0.03] border border-white/[0.06] text-zinc-300">
           {badge}
         </span>
       </div>

@@ -124,11 +124,13 @@ function LeadsContent() {
       setLoading(true);
     }
     const fetchRows = async () => {
+      // Busca os leads no Supabase sem o limite restritivo de 500 itens.
+      // Limite expandido para 50.000 para garantir a exibição completa de 100% dos leads do mês selecionado.
       const { data, error } = await supabase
         .from("whatsapp_leads")
         .select("id, nome, telefone, mensagem, data_lead, created_at, vendedor")
         .order("data_lead", { ascending: false })
-        .limit(500);
+        .limit(50000);
       if (!active) return;
       if (error) {
         console.error("[leads] fetch error:", error.message);
@@ -247,7 +249,7 @@ function LeadsContent() {
         <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
           <span className="text-[11px] font-medium font-mono uppercase tracking-wider text-zinc-500 group-hover:text-zinc-400 transition-colors">Leads recebidos</span>
           <div className="flex items-center gap-2.5">
-            <span className="text-[10px] px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-400 font-mono font-semibold uppercase tracking-wider border border-emerald-500/30 transition-transform duration-200 group-hover:scale-105">
+            <span className="text-[11px] px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-400 font-mono font-semibold uppercase tracking-wider border border-emerald-500/30 transition-transform duration-200 group-hover:scale-105">
               tempo real
             </span>
           </div>
@@ -267,7 +269,7 @@ function LeadsContent() {
                 )}
               >
                 {t.label}
-                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-white/[0.06] text-zinc-300 font-normal">
+                <span className="text-[11px] font-mono px-1.5 py-0.5 rounded-md bg-white/[0.06] text-zinc-300 font-normal">
                   {formatNumber(t.count)}
                 </span>
               </button>

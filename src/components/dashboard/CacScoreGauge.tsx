@@ -57,7 +57,7 @@ export function CacScoreGauge({ score, currentCac, targetCac }: Props) {
               {currentCac !== null ? `R$ ${currentCac.toFixed(0)}` : "—"}
             </span>
             <span className="text-xs text-muted-foreground mt-1">CAC atual</span>
-            <span className="text-[10px] text-muted-foreground mt-1">
+            <span className="text-[11px] text-muted-foreground mt-1">
               Meta: R$ {targetCac.toFixed(0)}
             </span>
           </div>
