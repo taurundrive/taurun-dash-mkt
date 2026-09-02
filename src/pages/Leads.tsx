@@ -1,8 +1,25 @@
 import { useEffect, useMemo, useState } from "react";
 import * as XLSX from "xlsx";
+import { Search, X, Download, ChevronLeft, ChevronRight } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import { Card } from "@/components/ui/card";
 import { KpiCard } from "@/components/dashboard/KpiCard";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+} from "@/components/ui/pagination";
 import { supabase } from "@/integrations/supabase/client";
 import { usePeriodFilter } from "@/context/PeriodFilterContext";
 import { formatNumber } from "@/lib/format";
@@ -220,12 +237,12 @@ function LeadsContent() {
   if (outrosCount > 0) tabs.push({ key: "outros", label: "Não atribuído", count: outrosCount });
 
   return (
-    <div className="flex flex-col gap-5 max-w-[1500px] mx-auto w-full">
+    <div className="flex flex-col gap-6 max-w-[1500px] mx-auto w-full">
       <section>
-        <p className="text-[11px] font-medium font-mono uppercase tracking-wider text-zinc-500 mb-3.5 px-1">
+        <h2 className="text-sm font-medium text-muted-foreground mb-3 px-0.5">
           Leads do WhatsApp — automação Z-API
-        </p>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
+        </h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
           <KpiCard
             label="Total de leads"
             value={formatNumber(periodRows.length)}
@@ -245,162 +262,175 @@ function LeadsContent() {
         </div>
       </section>
 
-      <div className="p-5 bg-[rgba(10,10,13,0.72)] backdrop-blur-2xl border border-white/[0.06] rounded-2xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.6)] transition-all duration-200 ease-out group">
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
-          <span className="text-[11px] font-medium font-mono uppercase tracking-wider text-zinc-500 group-hover:text-zinc-400 transition-colors">Leads recebidos</span>
-          <div className="flex items-center gap-2.5">
-            <span className="text-[11px] px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-400 font-mono font-semibold uppercase tracking-wider border border-emerald-500/30 transition-transform duration-200 group-hover:scale-105">
+      <div className="p-6 bg-card border border-border rounded-xl shadow-sm">
+        {/* Cabeçalho do Card com Status e Ação de Exportar */}
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <div className="flex items-center gap-3">
+            <h3 className="text-base font-semibold text-zinc-100">
+              Leads recebidos
+            </h3>
+            <span className="inline-flex items-center gap-1.5 text-xs px-2.5 py-0.5 rounded-full bg-zinc-800/80 text-zinc-300 font-medium border border-border">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
               tempo real
             </span>
           </div>
+          <Button
+            size="sm"
+            onClick={() => exportToExcel(filtered, filter)}
+            className="h-8 px-3 text-xs font-medium rounded-lg bg-white text-zinc-950 hover:bg-zinc-200 transition-colors flex items-center gap-1.5 shadow-sm"
+          >
+            <Download className="w-3.5 h-3.5 text-zinc-950" />
+            Exportar Excel
+          </Button>
         </div>
 
+        {/* Barra de Filtros (Tabs) e Campo de Busca (Input) */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-5">
-          <div className="flex flex-wrap items-center gap-1.5 bg-[#0a0a0d] p-1.5 rounded-2xl border border-white/[0.06] w-fit">
-            {tabs.map((t) => (
-              <button
-                key={t.key}
-                onClick={() => setFilter(t.key)}
-                className={cn(
-                  "apple-press-sm text-xs px-3.5 py-1.5 rounded-xl transition-all duration-150 font-mono flex items-center gap-2",
-                  filter === t.key
-                    ? "bg-white/[0.08] text-white font-semibold border border-white/15 shadow-[0_2px_12px_rgba(0,0,0,0.4)]"
-                    : "text-zinc-400 border border-transparent hover:text-white hover:bg-white/[0.03] font-medium",
-                )}
-              >
-                {t.label}
-                <span className="text-[11px] font-mono px-1.5 py-0.5 rounded-md bg-white/[0.06] text-zinc-300 font-normal">
-                  {formatNumber(t.count)}
-                </span>
-              </button>
-            ))}
-          </div>
+          <Tabs value={filter} onValueChange={(v) => setFilter(v as SellerFilter)}>
+            <TabsList className="h-9 p-1 bg-zinc-900 border border-border rounded-lg flex flex-wrap gap-1 w-fit">
+              {tabs.map((t) => (
+                <TabsTrigger
+                  key={t.key}
+                  value={t.key}
+                  className="h-7 px-3 text-xs font-medium rounded-md transition-colors data-[state=active]:bg-zinc-800 data-[state=active]:text-white data-[state=active]:shadow-sm text-muted-foreground hover:text-zinc-200 flex items-center gap-2"
+                >
+                  {t.label}
+                  <span className="text-[11px] px-1.5 py-0.2 rounded bg-zinc-800/80 text-zinc-300 font-normal">
+                    {formatNumber(t.count)}
+                  </span>
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
 
-          {/* Aba de pesquisa */}
+          {/* Campo de pesquisa oficial Shadcn */}
           <div className="relative w-full md:w-80">
-            <svg
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-500 pointer-events-none transition-colors group-focus-within:text-zinc-300"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+            <Input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Pesquisar por nome ou telefone..."
-              className="w-full pl-9 pr-8 py-2 text-xs font-sans font-medium text-white placeholder:text-zinc-500 bg-[#0a0a0d] border border-white/[0.08] hover:border-white/[0.14] focus:border-blue-500/40 focus:bg-[#0e0e13] focus:outline-none rounded-xl transition-all duration-150 shadow-[0_2px_12px_rgba(0,0,0,0.4)]"
+              className="h-9 pl-9 pr-8 text-sm text-zinc-100 placeholder:text-muted-foreground bg-zinc-900 border border-border focus-visible:ring-1 focus-visible:ring-zinc-400 rounded-lg"
             />
             {searchQuery && (
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => setSearchQuery("")}
-                className="apple-press-sm absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 p-1"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground hover:text-zinc-200 hover:bg-transparent"
                 title="Limpar pesquisa"
               >
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+                <X className="w-3.5 h-3.5" />
+              </Button>
             )}
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-white/[0.06]">
-                <th className="text-left text-[11px] font-medium font-mono uppercase tracking-wider text-zinc-500 pb-3 px-3">
+        {/* Tabela de Leads Shadcn/ui */}
+        <div className="rounded-lg border border-border overflow-hidden">
+          <Table>
+            <TableHeader className="bg-zinc-900/50 [&_tr]:border-b-border">
+              <TableRow className="hover:bg-transparent border-border">
+                <TableHead className="text-left text-xs font-medium text-muted-foreground h-9 px-4">
                   Data
-                </th>
-                <th className="text-left text-[11px] font-medium font-mono uppercase tracking-wider text-zinc-500 pb-3 px-3">
+                </TableHead>
+                <TableHead className="text-left text-xs font-medium text-muted-foreground h-9 px-4">
                   Nome
-                </th>
-                <th className="text-left text-[11px] font-medium font-mono uppercase tracking-wider text-zinc-500 pb-3 px-3">
+                </TableHead>
+                <TableHead className="text-left text-xs font-medium text-muted-foreground h-9 px-4">
                   Telefone
-                </th>
-                <th className="text-left text-[11px] font-medium font-mono uppercase tracking-wider text-zinc-500 pb-3 px-3">
+                </TableHead>
+                <TableHead className="text-left text-xs font-medium text-muted-foreground h-9 px-4">
                   Vendedor
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.length === 0 && (
-                <tr>
-                  <td
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="[&_tr:last-child]:border-0">
+              {filtered.length === 0 ? (
+                <TableRow className="hover:bg-transparent">
+                  <TableCell
                     colSpan={4}
-                    className="text-center text-xs font-mono text-zinc-500 py-12"
+                    className="text-center text-sm text-muted-foreground py-12"
                   >
                     {searchQuery
                       ? `Nenhum lead encontrado para "${searchQuery}".`
                       : "Nenhum lead recebido ainda. Configure o n8n para enviar para o endpoint de ingestão."}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                paginated.map((r) => (
+                  <TableRow
+                    key={r.id}
+                    className="border-b border-border/60 hover:bg-zinc-800/30 transition-colors"
+                  >
+                    <TableCell className="px-4 py-3 text-sm text-muted-foreground tabular-nums whitespace-nowrap">
+                      {displayLeadDate(r)}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-sm font-medium text-zinc-100">
+                      {r.nome ?? "—"}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-sm text-zinc-300 tabular-nums whitespace-nowrap">
+                      {formatPhone(r.telefone)}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 whitespace-nowrap">
+                      {r.vendedor ? (
+                        <Badge
+                          variant="outline"
+                          className="text-xs font-medium px-2.5 py-0.5 rounded-md border border-border bg-zinc-800/80 text-zinc-200"
+                        >
+                          {sellerLabel(r.vendedor)}
+                        </Badge>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))
               )}
-              {paginated.map((r) => (
-                <tr
-                  key={r.id}
-                  className="border-b border-white/[0.04] last:border-0 hover:bg-white/[0.035] transition-colors cursor-pointer group/lead"
-                >
-                  <td className="px-3 py-3.5 text-xs text-zinc-400 tabular-nums font-mono align-middle whitespace-nowrap">
-                    {displayLeadDate(r)}
-                  </td>
-                  <td className="px-3 py-3.5 text-xs font-medium text-zinc-100 align-middle group-hover/lead:text-white transition-colors">
-                    {r.nome ?? "—"}
-                  </td>
-                  <td className="px-3 py-3.5 text-xs text-zinc-300 tabular-nums font-mono align-middle whitespace-nowrap">
-                    {formatPhone(r.telefone)}
-                  </td>
-                  <td className="px-3 py-3.5 align-middle whitespace-nowrap">
-                    {r.vendedor ? (
-                      <span
-                        className={cn(
-                          "inline-block text-[11px] font-mono font-medium px-2.5 py-0.5 rounded-full border",
-                          normalizeSeller(r.vendedor) === "fernando" &&
-                            "bg-purple-500/15 text-purple-300 border-purple-500/30",
-                          normalizeSeller(r.vendedor) === "roberto" &&
-                            "bg-emerald-500/15 text-emerald-300 border-emerald-500/30",
-                          normalizeSeller(r.vendedor) === "outros" &&
-                            "bg-white/[0.04] text-zinc-400 border-white/[0.08]",
-                        )}
-                      >
-                        {sellerLabel(r.vendedor)}
-                      </span>
-                    ) : (
-                      <span className="text-[11px] font-mono text-zinc-600">—</span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
 
+        {/* Paginação Shadcn/ui */}
         {filtered.length > 0 && (
-          <div className="flex flex-wrap items-center justify-between gap-3 mt-4 pt-4 border-t border-white/[0.06]">
-            <span className="text-[11px] text-zinc-500 font-mono">
+          <div className="flex flex-wrap items-center justify-between gap-3 mt-4 pt-3">
+            <span className="text-xs text-muted-foreground font-normal">
               Mostrando {pageStart + 1}–{Math.min(pageStart + PAGE_SIZE, filtered.length)} de {formatNumber(filtered.length)}
             </span>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage <= 1}
-                className="apple-press text-xs font-mono font-medium px-3 py-1.5 rounded-xl border border-white/[0.08] text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-all duration-150 disabled:opacity-40 disabled:pointer-events-none"
-              >
-                Anterior
-              </button>
-              <span className="text-xs font-mono tabular-nums text-zinc-300 font-medium px-2">
-                {currentPage} / {totalPages}
-              </span>
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={currentPage >= totalPages}
-                className="apple-press text-xs font-mono font-medium px-3 py-1.5 rounded-xl border border-white/[0.08] text-zinc-400 hover:text-white hover:bg-white/[0.04] transition-all duration-150 disabled:opacity-40 disabled:pointer-events-none"
-              >
-                Próxima
-              </button>
-            </div>
+            <Pagination className="mx-0 w-auto">
+              <PaginationContent className="gap-2">
+                <PaginationItem>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={currentPage <= 1}
+                    className="h-8 px-3 text-xs font-medium rounded-lg border-border text-zinc-300 hover:text-white hover:bg-zinc-800 disabled:opacity-40"
+                  >
+                    <ChevronLeft className="h-3.5 w-3.5 mr-1" />
+                    Anterior
+                  </Button>
+                </PaginationItem>
+                <PaginationItem>
+                  <span className="text-xs tabular-nums text-zinc-300 font-medium px-2">
+                    {currentPage} / {totalPages}
+                  </span>
+                </PaginationItem>
+                <PaginationItem>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    disabled={currentPage >= totalPages}
+                    className="h-8 px-3 text-xs font-medium rounded-lg border-border text-zinc-300 hover:text-white hover:bg-zinc-800 disabled:opacity-40"
+                  >
+                    Próxima
+                    <ChevronRight className="h-3.5 w-3.5 ml-1" />
+                  </Button>
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
           </div>
         )}
       </div>

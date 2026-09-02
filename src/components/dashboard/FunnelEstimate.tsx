@@ -30,32 +30,32 @@ function FunnelCard({
   empty?: string;
 }) {
   return (
-    <Card className="p-6 bg-[#0a0a0d]/90 border border-white/[0.06] rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.65)] backdrop-blur-xl hover:border-white/[0.15] transition-all duration-200 ease-out group">
+    <Card className="p-6 bg-card border border-border rounded-xl shadow-sm">
       <div className="flex items-center justify-between mb-5">
-        <span className="text-[11px] font-medium font-mono uppercase tracking-wider text-zinc-500 group-hover:text-zinc-400 transition-colors">{title}</span>
-        <span className="text-[11px] px-2.5 py-1 rounded-lg font-mono font-medium uppercase tracking-[0.08em] bg-white/[0.03] border border-white/[0.06] text-zinc-300">
+        <h3 className="text-base font-semibold text-zinc-100">{title}</h3>
+        <span className="text-xs px-2.5 py-0.5 rounded-full font-medium bg-zinc-800 border border-border text-zinc-300">
           {badge}
         </span>
       </div>
       {empty ? (
-        <p className="text-xs font-mono text-zinc-500 py-6 text-center">{empty}</p>
+        <p className="text-sm text-muted-foreground py-6 text-center">{empty}</p>
       ) : (
         <div className="flex flex-col gap-3">
           {rows.map((r, idx) => (
             <div key={r.label} className="flex items-center gap-3">
-              <div className="text-[11px] font-mono font-medium text-zinc-400 w-24 shrink-0">{r.label}</div>
-              <div className="flex-1 h-7 rounded-xl bg-white/[0.03] border border-white/[0.04] overflow-hidden relative">
+              <div className="text-xs font-medium text-muted-foreground w-24 shrink-0">{r.label}</div>
+              <div className="flex-1 h-7 rounded-lg bg-zinc-900 border border-border/80 overflow-hidden relative">
                 <div
                   className={cn(
-                    "h-full rounded-xl flex items-center px-3 text-[11px] font-mono font-semibold text-white transition-all duration-500 ease-out",
-                    idx === 0 ? "bg-white/[0.12] border-r border-white/20" : "bg-white/[0.22] border-r border-white/30 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]",
+                    "h-full rounded-lg flex items-center px-3 text-xs font-medium text-white transition-all duration-500 ease-out",
+                    idx === 0 ? "bg-zinc-700/70 border-r border-zinc-600" : "bg-zinc-600/70 border-r border-zinc-500 text-white",
                   )}
                   style={{ width: `${r.width}%` }}
                 >
                   {formatNumber(r.value)}
                 </div>
               </div>
-              <div className="text-[11px] text-zinc-300 w-12 text-right shrink-0 font-mono font-semibold">
+              <div className="text-xs text-zinc-300 w-12 text-right shrink-0 tabular-nums font-medium">
                 {r.pct.toFixed(1)}%
               </div>
             </div>

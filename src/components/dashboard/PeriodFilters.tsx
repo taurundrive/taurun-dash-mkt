@@ -45,19 +45,16 @@ export function PeriodFilters() {
         {/* SelectTrigger: glass material com apple-press response em pointer-down */}
         <SelectTrigger
           className={cn(
-            "apple-press h-9 w-[180px] text-xs font-mono rounded-xl",
-            "bg-[rgba(10,10,13,0.72)] backdrop-blur-xl",
-            "border border-white/[0.08] hover:border-white/[0.18]",
-            "text-white shadow-[0_2px_12px_rgba(0,0,0,0.4)]",
-            "transition-[border-color,box-shadow] duration-[80ms]",
-            filter.mode === "month" && "border-blue-500/40 text-white font-semibold",
+            "h-9 w-[180px] text-sm font-medium rounded-lg",
+            "bg-zinc-900 border border-border hover:bg-zinc-800/60",
+            "text-zinc-100 shadow-sm transition-colors",
           )}
         >
           <SelectValue placeholder="Selecionar mês" />
         </SelectTrigger>
-        <SelectContent className="bg-[#131318] border border-white/[0.12] rounded-xl shadow-[0_24px_64px_rgba(0,0,0,0.95)] backdrop-blur-xl">
+        <SelectContent className="bg-popover border border-border rounded-lg shadow-md">
           {MONTHS.map((m) => (
-            <SelectItem key={m.value} value={m.value} className="text-xs font-mono text-zinc-300 focus:bg-white/[0.08] focus:text-white rounded-lg cursor-pointer py-2">
+            <SelectItem key={m.value} value={m.value} className="text-sm text-zinc-200 focus:bg-zinc-800 focus:text-white rounded-md cursor-pointer py-1.5">
               {m.label}
             </SelectItem>
           ))}

@@ -112,10 +112,10 @@ function MetricasContent() {
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto w-full">
       <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
-        <p className="text-xs font-mono font-medium text-zinc-400 uppercase tracking-wider">
+        <h2 className="text-sm font-medium text-muted-foreground">
           Engajamento, alcance e crescimento do perfil do Instagram — {label}
-        </p>
-        <div className="flex items-center gap-1.5 bg-[#0a0a0d] border border-white/[0.06] rounded-2xl p-1.5 shadow-sm">
+        </h2>
+        <div className="flex items-center gap-1 bg-zinc-900 border border-border rounded-lg p-1">
           {([7, 15, 30] as PresetDays[]).map((d) => (
             <Button
               key={d}
@@ -123,10 +123,10 @@ function MetricasContent() {
               size="sm"
               onClick={() => setPreset(d)}
               className={cn(
-                "h-8 px-3.5 text-xs font-mono rounded-xl uppercase tracking-wider transition-all duration-150 ease-out active:scale-95",
+                "h-7 px-3 text-xs font-medium rounded-md transition-colors",
                 filter.mode === "preset" && filter.preset === d
-                  ? "bg-white/[0.08] text-white font-bold border border-white/20 shadow-[0_2px_12px_rgba(0,0,0,0.5)]"
-                  : "text-zinc-400 hover:text-white hover:bg-white/[0.03]",
+                  ? "bg-zinc-800 text-white shadow-sm"
+                  : "text-muted-foreground hover:text-zinc-200",
               )}
             >
               {d}d
@@ -136,14 +136,14 @@ function MetricasContent() {
       </div>
 
       {empty ? (
-        <Card className="p-12 text-center bg-[#0a0a0d]/90 border border-white/[0.06] rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.65)] backdrop-blur-xl">
-          <p className="text-xs font-mono text-zinc-500">
+        <Card className="p-12 text-center bg-card border border-border rounded-xl shadow-sm">
+          <p className="text-sm text-muted-foreground">
             Nenhum dado de Instagram ainda. Configure a automação no n8n para alimentar este painel.
           </p>
         </Card>
       ) : filtered.length === 0 ? (
-        <Card className="p-12 text-center bg-[#0a0a0d]/90 border border-white/[0.06] rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.65)] backdrop-blur-xl">
-          <p className="text-xs font-mono text-zinc-500">
+        <Card className="p-12 text-center bg-card border border-border rounded-xl shadow-sm">
+          <p className="text-sm text-muted-foreground">
             Sem dados do Instagram no período selecionado ({label}).
           </p>
         </Card>
@@ -169,7 +169,7 @@ function MetricasContent() {
 
           {/* Linha 2: engajamento */}
           <div className="space-y-3">
-            <p className="text-[11px] font-medium font-mono uppercase tracking-wider text-zinc-500 px-1">Engajamento</p>
+            <h3 className="text-sm font-medium text-muted-foreground px-0.5">Engajamento</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <KpiCard label="Curtidas" value={formatNumber(agg.likes)} icon={Heart} index={4} />
               <KpiCard label="Comentários" value={formatNumber(agg.comments)} icon={MessageCircle} index={5} />
@@ -180,7 +180,7 @@ function MetricasContent() {
 
           {/* Linha 3: ações & conteúdo */}
           <div className="space-y-3">
-            <p className="text-[11px] font-medium font-mono uppercase tracking-wider text-zinc-500 px-1">Ações & Conteúdo</p>
+            <h3 className="text-sm font-medium text-muted-foreground px-0.5">Ações & Conteúdo</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <KpiCard label="Cliques no site" value={formatNumber(agg.website_clicks)} icon={MousePointerClick} index={8} />
               <KpiCard label="Posts publicados" value={formatNumber(agg.posts_published)} icon={ImageIcon} index={9} />

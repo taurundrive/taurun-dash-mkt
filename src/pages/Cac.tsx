@@ -3,6 +3,14 @@ import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { PeriodFilters } from "@/components/dashboard/PeriodFilters";
 import { IndicatorCard } from "@/components/dashboard/IndicatorCard";
 import { IndicatorCardSkeleton } from "@/components/dashboard/CardSkeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useDashboardData } from "@/data/dataSource";
 import { computePaidIndicators, PaidIndicatorsSet } from "@/lib/aggregations";
 import { usePeriodFilter } from "@/context/PeriodFilterContext";
@@ -72,28 +80,18 @@ function CacContent() {
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto w-full">
       <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
-        <p className="text-xs font-mono font-medium text-zinc-400 uppercase tracking-wider">
-          6 indicadores chave de aquisição via tráfego pago — {label}
-        </p>
+        <h2 className="text-sm font-medium text-muted-foreground">
+          Indicadores chave de aquisição via tráfego pago — {label}
+        </h2>
       </div>
 
-      {/* Resumo do mês — glass material Apple com reflexo de superfície */}
-      <div className="relative overflow-hidden rounded-2xl
-                      bg-[rgba(10,10,13,0.72)] backdrop-blur-2xl
-                      border border-white/[0.06]
-                      shadow-[0_8px_32px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.04)]
-                      p-6 space-y-5">
-        {/* Reflexo de superfície no topo — camada de material translúcido */}
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.07] to-transparent pointer-events-none" />
-
-        <div className="border-b border-white/[0.06] pb-3.5 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-[11px] font-medium font-mono uppercase tracking-wider text-zinc-500">
+      {/* Resumo do mês — Card sólido Shadcn */}
+      <div className="bg-card border border-border rounded-xl p-6 shadow-sm space-y-4">
+        <div className="border-b border-border pb-3 flex flex-wrap items-center justify-between gap-3">
+          <h3 className="text-sm font-medium text-muted-foreground">
             Base do mês selecionado
-          </p>
-          {/* Badge de período: âncora espacial fixa — não muda de tamanho ao trocar mês */}
-          <span className="text-xs font-mono text-zinc-300 uppercase tracking-wider font-semibold
-                           bg-white/[0.04] px-3 py-1 rounded-lg border border-white/[0.06]
-                           transition-[border-color] duration-[120ms] hover:border-white/[0.12]">
+          </h3>
+          <span className="text-xs text-zinc-300 font-medium bg-zinc-800/80 px-2.5 py-1 rounded-md border border-border">
             {currentRow ? currentRow.label : "Sem dados"}
           </span>
         </div>
@@ -106,111 +104,118 @@ function CacContent() {
         </div>
       </div>
 
-      {/* Grid 5 indicadores com stagger — index passa a posição para o delay */}
+      {/* Grid 5 indicadores */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {cardOrder.map((key, i) => (
           <IndicatorCard key={key} indicator={indicators[key]} index={i} />
         ))}
       </div>
 
-      {/* Tabela histórica — glass container com rows de resposta 80ms */}
-      <div className="relative overflow-hidden rounded-2xl
-                      bg-[rgba(10,10,13,0.72)] backdrop-blur-2xl
-                      border border-white/[0.06]
-                      shadow-[0_8px_32px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.04)]">
-        {/* Reflexo de superfície */}
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent pointer-events-none" />
-
-        <div className="px-6 pt-6 pb-4 border-b border-white/[0.06]">
-          <p className="text-[11px] font-medium font-mono uppercase tracking-wider text-zinc-500">Histórico mensal</p>
+      {/* Tabela histórica — Card sólido Shadcn */}
+      <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-border">
+          <h3 className="text-base font-semibold text-zinc-100">Histórico mensal</h3>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-white/[0.06] bg-white/[0.015]">
-                <Th className="text-left">Mês</Th>
-                <Th>Investido</Th>
-                <Th>Leads</Th>
-                <Th>Vendas Totais</Th>
-                <Th>Receita pago</Th>
-                <Th>ROAS</Th>
-                <Th>CAC</Th>
-                <Th>Conv.</Th>
-                <Th>CPL</Th>
-                <Th>Vendas Pagas</Th>
-              </tr>
-            </thead>
-            <tbody>
+          <Table className="w-full text-sm">
+            <TableHeader className="bg-zinc-900/50 [&_tr]:border-b-border">
+              <TableRow className="border-b border-border hover:bg-transparent">
+                <TableHead className="text-left font-medium px-4 py-3 text-xs text-muted-foreground h-auto">
+                  Mês
+                </TableHead>
+                <TableHead className="font-medium px-4 py-3 text-xs text-muted-foreground text-right h-auto">
+                  Investido
+                </TableHead>
+                <TableHead className="font-medium px-4 py-3 text-xs text-muted-foreground text-right h-auto">
+                  Leads
+                </TableHead>
+                <TableHead className="font-medium px-4 py-3 text-xs text-muted-foreground text-right h-auto">
+                  Vendas Totais
+                </TableHead>
+                <TableHead className="font-medium px-4 py-3 text-xs text-muted-foreground text-right h-auto">
+                  Receita pago
+                </TableHead>
+                <TableHead className="font-medium px-4 py-3 text-xs text-muted-foreground text-right h-auto">
+                  ROAS
+                </TableHead>
+                <TableHead className="font-medium px-4 py-3 text-xs text-muted-foreground text-right h-auto">
+                  CAC
+                </TableHead>
+                <TableHead className="font-medium px-4 py-3 text-xs text-muted-foreground text-right h-auto">
+                  Conv.
+                </TableHead>
+                <TableHead className="font-medium px-4 py-3 text-xs text-muted-foreground text-right h-auto">
+                  CPL
+                </TableHead>
+                <TableHead className="font-medium px-4 py-3 text-xs text-muted-foreground text-right h-auto">
+                  Vendas Pagas
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="[&_tr:last-child]:border-0">
               {rows.map((r) => {
                 const ind = computePaidIndicators(r);
                 const isCurrent = r.monthIso.slice(0, 7) === selectedMonthIso;
                 return (
-                  <tr
+                  <TableRow
                     key={r.monthIso}
                     className={cn(
-                      // Hover: 80ms — resposta imediata, não lenta
-                      "border-b border-white/[0.04] last:border-0 cursor-pointer",
-                      "transition-[background-color] duration-[80ms]",
-                      "hover:bg-white/[0.04]",
-                      // Linha ativa: indicador lateral como âncora espacial (box-shadow esquerdo)
-                      isCurrent
-                        ? "bg-white/[0.05] font-semibold shadow-[-2px_0_0_0_rgba(96,165,250,0.5)]"
-                        : "",
+                      "border-b border-border/60 hover:bg-zinc-800/30 transition-colors cursor-pointer",
+                      isCurrent && "bg-zinc-800/40 font-medium",
                     )}
                   >
-                    {/* Mês: font-medium, tracking tight — SF Pro Display */}
-                    <td className="px-5 py-4 font-sans font-medium text-zinc-100 tracking-[-0.01em]">{r.label}</td>
-                    <Td>{r.invested > 0 ? formatCurrency(r.invested) : "—"}</Td>
-                    <Td>{r.paidLeads > 0 ? formatNumber(r.paidLeads) : "—"}</Td>
-                    <Td>{r.closedSales > 0 ? formatNumber(r.closedSales) : "—"}</Td>
-                    <Td>{r.paidRevenue ? formatCurrency(r.paidRevenue) : "—"}</Td>
-                    <Td>{ind.roas.display}</Td>
-                    <Td>{ind.cac.display}</Td>
-                    <Td>{ind.conversion.display}</Td>
-                    <Td>{ind.cpl.display}</Td>
-                    <Td>{r.leadsClosedSales > 0 ? formatNumber(r.leadsClosedSales) : "—"}</Td>
-                  </tr>
+                    <TableCell className="px-4 py-3 text-zinc-100 font-medium">
+                      <div className="flex items-center gap-2">
+                        {isCurrent && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                        )}
+                        <span>{r.label}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-right tabular-nums text-zinc-300">
+                      {formatCurrency(r.invested)}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-right tabular-nums text-zinc-300">
+                      {formatNumber(r.paidLeads)}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-right tabular-nums text-zinc-300">
+                      {formatNumber(r.closedSales)}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-right tabular-nums text-zinc-300">
+                      {r.paidRevenue ? formatCurrency(r.paidRevenue) : "—"}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-right tabular-nums font-medium text-zinc-100">
+                      {ind.roas.display}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-right tabular-nums font-medium text-zinc-100">
+                      {ind.cac.display}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-right tabular-nums font-medium text-zinc-100">
+                      {ind.conversion.display}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-right tabular-nums font-medium text-zinc-100">
+                      {ind.cpl.display}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-right tabular-nums text-zinc-300">
+                      {r.leadsClosedSales ? `${formatNumber(r.leadsClosedSales)}` : "—"}
+                    </TableCell>
+                  </TableRow>
                 );
               })}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
     </div>
   );
 }
 
-/**
- * StatBlock — Bloco de dado com tipografia óptica Apple.
- * Tracking [-0.03em] no valor: SF Pro Display usa espaçamento negativo em tamanhos grandes
- */
 function StatBlock({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex flex-col gap-1.5 lg:border-l lg:border-white/[0.06] lg:pl-5 first:border-l-0 first:pl-0">
-      <p className="text-[11px] font-medium font-mono uppercase tracking-wider text-zinc-500">{label}</p>
-      <p className="font-sans text-xl font-bold tabular-nums tracking-[-0.03em] leading-none text-white">{value}</p>
+    <div className="flex flex-col gap-1.5 lg:border-l lg:border-border lg:pl-5 first:border-l-0 first:pl-0">
+      <p className="text-xs font-medium text-muted-foreground">{label}</p>
+      <p className="text-xl font-bold tabular-nums tracking-tight leading-none text-white">{value}</p>
     </div>
-  );
-}
-
-function Th({ children, className }: { children: React.ReactNode; className?: string }) {
-  return (
-    <th
-      className={cn(
-        "font-medium px-5 py-3.5 text-[11px] font-mono uppercase tracking-wider text-zinc-500 text-right",
-        className,
-      )}
-    >
-      {children}
-    </th>
-  );
-}
-
-function Td({ children }: { children: React.ReactNode }) {
-  return (
-    <td className="px-5 py-4 text-right tabular-nums font-mono text-xs font-medium text-zinc-300">
-      {children}
-    </td>
   );
 }
 

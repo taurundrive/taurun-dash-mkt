@@ -1,85 +1,71 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ─────────────────────────────────────────────────────────────
-   DESIGN SYSTEM: MODE — UI Kit (Black v.1.0.1) + TAURUN CCO
-   MOTION: Apple Designing Fluid Interfaces (WWDC 2018)
+   DESIGN SYSTEM: SHADCN/UI DARK THEME (DARK ZINC)
+   TYPOGRAPHY: INTER 100%
 ───────────────────────────────────────────────────────────── */
 
 @layer base {
   :root {
-    /* Fundo raiz da aplicação — Preto Obsidiana Puro (#000000) */
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
+    /* Fundo raiz da aplicação — Dark Zinc profundo (#09090b) */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
 
-    /* Cartões e containers principais (#0a0a0d) */
-    --card: 240 13% 5%;
-    --card-foreground: 0 0% 100%;
+    /* Cartões e containers principais (#0f0f12 / zinc-900 sólido) */
+    --card: 240 6% 6%;
+    --card-foreground: 0 0% 98%;
 
-    /* Popovers, menus dropdown e tooltips (#131318) */
-    --popover: 240 13% 8%;
-    --popover-foreground: 0 0% 100%;
+    /* Popovers, menus dropdown e tooltips (#18181b) */
+    --popover: 240 5% 9%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 210 90% 60%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
 
-    --secondary: 240 13% 8%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 240 10% 11%;
-    --muted-foreground: 240 5% 65%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
 
-    --accent: 210 90% 60%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
 
-    --success: 158 64% 52%;
+    --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
 
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
 
-    /* Bordas */
-    --border: 0 0% 100% / 6%;
-    --input: 0 0% 100% / 10%;
-    --ring: 210 90% 60%;
-    --radius: 1rem;
+    /* Bordas e Inputs */
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+    --radius: 0.75rem;
 
     /* Sidebar */
-    --sidebar-background: 240 13% 5%;
-    --sidebar-foreground: 240 5% 65%;
-    --sidebar-primary: 210 90% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 100% / 4%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 100% / 6%;
-    --sidebar-ring: 210 90% 60%;
+    --sidebar-background: 240 10% 3.9%;
+    --sidebar-foreground: 240 5% 64.9%;
+    --sidebar-primary: 0 0% 98%;
+    --sidebar-primary-foreground: 240 5.9% 10%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 240 4.9% 83.9%;
 
-    /* ── Apple Motion Tokens ────────────────────────────────── */
-    /* Easing: ease-out padrão para micro-interações (responsivo e gracioso) */
+    /* Transições e Animações */
     --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-    /* Easing: spring-like para entradas (sem bounce, critically damped) */
-    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-    /* Easing: para reversão / dismissal */
     --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
-
-    /* Durações */
-    --duration-press: 80ms;       /* resposta a pointer-down — deve ser imperceptível */
-    --duration-micro: 120ms;      /* hover, badge transitions */
-    --duration-enter: 240ms;      /* entradas de elementos na tela */
-    --duration-sheet: 360ms;      /* painéis, modais, drawers */
-
-    /* ── Apple Glass (translucent materials) ──────────────── */
-    --glass-bg: rgba(10, 10, 13, 0.72);
-    --glass-bg-hover: rgba(10, 10, 13, 0.82);
-    --glass-border: rgba(255, 255, 255, 0.06);
-    --glass-border-hover: rgba(255, 255, 255, 0.14);
-    --glass-blur: 24px;           /* blur denso — Apple usa backdrop-blur forte para separar camadas */
+    --duration-press: 80ms;
+    --duration-micro: 120ms;
+    --duration-enter: 200ms;
   }
 }
 
@@ -88,26 +74,26 @@
     @apply border-border;
   }
 
-  /* Reset de transição base: tudo parte de zero velocidade para respeitar interruptibilidade */
   *, *::before, *::after {
     transition-timing-function: var(--ease-out);
   }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-feature-settings: "ss01", "cv11";
-    /* Suaviza a renderização de subpixel para tipografia Apple-style */
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
 
   html {
     color-scheme: dark;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: 'Inter', sans-serif;
   }
 
   code, pre, .font-mono {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'Inter', monospace;
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
   }
 }
 

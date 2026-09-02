@@ -33,4 +33,6 @@ dist-ssr
 # Scratch and log files with raw tokens/secrets
 scratch/
 logs/
+.impeccable/
+supabase/.temp/
 

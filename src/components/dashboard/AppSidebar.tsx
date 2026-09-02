@@ -1,4 +1,5 @@
 import { NavLink } from "@/components/NavLink";
+import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -43,41 +44,36 @@ export function AppSidebar() {
   }
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-white/[0.06] bg-[#0a0a0d]">
-      <SidebarContent className="bg-[#0a0a0d] flex flex-col justify-between">
+    <Sidebar collapsible="icon" className="border-r border-border bg-[#09090b]">
+      <SidebarContent className="bg-[#09090b] flex flex-col justify-between">
         {/* Logo / Brand */}
         <div>
           <div
             className={cn(
-              "px-4 py-5 border-b border-white/[0.06] transition-[padding] duration-[120ms]",
+              "px-4 py-4 border-b border-border transition-[padding] duration-150",
               collapsed && "px-0 py-4 flex justify-center"
             )}
           >
             {collapsed ? (
-              // Logo compacto — âncora espacial que permanece no mesmo ponto ao colapsar
-              <div className="w-8 h-8 rounded-xl bg-white/[0.06] border border-white/[0.10] flex items-center justify-center font-mono font-bold text-sm text-white shadow-sm">
+              <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-border flex items-center justify-center font-bold text-sm text-white shadow-sm">
                 T
               </div>
             ) : (
-              <>
-                <div className="text-[11px] font-medium font-mono uppercase tracking-wider text-zinc-500">
-                  Dashboard
+              <div>
+                <div className="text-base font-semibold text-zinc-100 tracking-tight">
+                  Taurun Dashboard
                 </div>
-                {/* Tipografia do produto: bold, tracking tight — SF Pro Display */}
-                <div className="text-lg font-bold font-sans text-white leading-tight mt-1 tracking-[-0.02em]">
-                  TAURUN MKT
+                <div className="text-xs text-muted-foreground mt-0.5">
+                  Marketing & Performance
                 </div>
-                <div className="text-[11px] text-zinc-600 font-mono mt-0.5">
-                  marketing.taurun.com
-                </div>
-              </>
+              </div>
             )}
           </div>
 
           {/* Nav items */}
           <SidebarGroup className="mt-2">
             {!collapsed && (
-              <SidebarGroupLabel className="text-[11px] font-medium font-mono uppercase tracking-wider text-zinc-500 px-3 pt-2 pb-1">
+              <SidebarGroupLabel className="text-xs font-medium text-muted-foreground px-3 pt-2 pb-1">
                 Navegação
               </SidebarGroupLabel>
             )}
@@ -85,31 +81,22 @@ export function AppSidebar() {
               <SidebarMenu>
                 {items.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild className="h-auto p-0">
+                    <SidebarMenuButton
+                      asChild
+                      className="h-9 px-3 rounded-lg text-sm font-medium text-muted-foreground hover:bg-zinc-800/60 hover:text-zinc-100 transition-colors duration-150"
+                    >
                       <NavLink
                         to={item.url}
                         end={item.url === "/"}
                         title={collapsed ? item.title : undefined}
                         className={cn(
-                          // Base: glass leve + press physics
-                          "apple-press-sm flex items-center gap-3 rounded-xl mx-2 px-3 py-2.5",
-                          "text-xs font-medium text-zinc-400 border border-transparent",
-                          // Hover: resposta em 80ms — mais rápido que o padrão de 150ms
-                          "hover:bg-white/[0.05] hover:text-white",
-                          "transition-[background-color,color,border-color] duration-[80ms]",
-                          "group",
-                          collapsed && "justify-center px-0 mx-0 w-8 h-8"
+                          "flex w-full items-center gap-3",
+                          collapsed && "justify-center p-0 w-8 h-8"
                         )}
-                        activeClassName={cn(
-                          // Ativo: não apenas cor — borda lateral como âncora espacial física
-                          "bg-white/[0.07] !text-white font-semibold",
-                          "border-white/[0.10]",
-                          // Nota: o indicador lateral está no ::before via box-shadow esquerdo
-                          "shadow-[-2px_0_0_0_rgba(96,165,250,0.7),inset_0_1px_0_rgba(255,255,255,0.04)]"
-                        )}
+                        activeClassName="bg-zinc-800 !text-white font-medium shadow-sm"
                       >
                         <item.icon
-                          className="w-4 h-4 shrink-0 transition-[color,transform] duration-[80ms] text-zinc-500 group-hover:text-zinc-200 group-[.active]:text-blue-400"
+                          className="w-4 h-4 shrink-0 text-muted-foreground group-hover:text-zinc-100 group-[.active]:text-white transition-colors"
                         />
                         {!collapsed && <span>{item.title}</span>}
                       </NavLink>
@@ -124,27 +111,27 @@ export function AppSidebar() {
         {/* Footer: Sign out */}
         <div
           className={cn(
-            "p-2 border-t border-white/[0.06] mt-auto transition-[padding] duration-[120ms]",
+            "p-2 border-t border-border mt-auto",
             collapsed && "p-2 flex flex-col items-center"
           )}
         >
-          {/* Botão de saída: press imediato — feedback em pointer-down */}
-          <button
+          <Button
+            variant="ghost"
             onClick={handleSignOut}
             title="Sair"
             className={cn(
-              "apple-press-sm flex items-center gap-3 text-xs font-sans font-medium",
-              "text-zinc-500 hover:text-zinc-200 hover:bg-white/[0.04] rounded-xl px-3 py-2.5",
-              "transition-[background-color,color,transform] duration-[80ms]",
-              collapsed ? "justify-center px-0 mx-0 w-8 h-8" : "mx-2 w-[calc(100%-16px)]"
+              "flex items-center gap-3 text-sm font-medium h-9 w-full",
+              "text-muted-foreground hover:text-zinc-100 hover:bg-zinc-800/60 rounded-lg px-3",
+              "transition-colors duration-150",
+              collapsed && "justify-center px-0 w-8 h-8"
             )}
           >
-            <LogOut className="w-4 h-4 shrink-0" />
+            <LogOut className="w-4 h-4 shrink-0 text-muted-foreground" />
             {!collapsed && <span>Sair</span>}
-          </button>
+          </Button>
           {!collapsed && (
-            <div className="mt-2.5 px-4 text-[11px] font-mono text-zinc-700">
-              Atualizado agora · v1.0.1
+            <div className="mt-2.5 px-4 text-xs text-zinc-600">
+              v1.0.1
             </div>
           )}
         </div>

@@ -44,9 +44,9 @@ function PerformanceContent() {
     <div className="flex flex-col gap-5 max-w-[1500px] mx-auto w-full">
       {/* KPIs */}
       <section>
-        <p className="text-[11px] font-medium font-mono uppercase tracking-wider text-zinc-500 mb-3.5 px-1">
+        <h2 className="text-sm font-medium text-muted-foreground mb-3 px-0.5">
           Performance geral
-        </p>
+        </h2>
         {/* KPIs — index prop para stagger escalonado */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-[1.6fr_1fr_1fr_1.8fr_1fr] gap-2.5">
           <KpiCard

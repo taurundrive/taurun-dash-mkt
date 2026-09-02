@@ -13,18 +13,18 @@ import { CampaignAggregate } from "@/lib/aggregations";
 import { formatCurrency, formatPercent } from "@/lib/format";
 
 function toneFor(conv: number | null) {
-  if (conv === null) return "hsl(var(--muted-foreground))";
-  if (conv >= 25) return "hsl(var(--success))";
-  if (conv >= 15) return "hsl(var(--warning))";
-  return "hsl(var(--destructive))";
+  if (conv === null) return "#3f3f46"; // zinc-700
+  if (conv >= 25) return "#ffffff";   // white (alta performance)
+  if (conv >= 15) return "#a1a1aa";   // zinc-400 (média)
+  return "#52525b";                   // zinc-600 (baixa)
 }
 
 function toneForCpl(cpl: number, min: number, max: number) {
-  if (max === min) return "hsl(var(--success))";
+  if (max === min) return "#ffffff";
   const pct = (cpl - min) / (max - min);
-  if (pct < 0.34) return "hsl(var(--success))";
-  if (pct < 0.67) return "hsl(var(--warning))";
-  return "hsl(var(--destructive))";
+  if (pct < 0.34) return "#ffffff";   // melhor CPL em branco
+  if (pct < 0.67) return "#a1a1aa";   // médio em zinc-400
+  return "#52525b";                   // maior CPL em zinc-600
 }
 
 function shortName(name: string) {
@@ -34,11 +34,12 @@ function shortName(name: string) {
 }
 
 const tooltipStyle = {
-  background: "hsl(var(--popover))",
-  border: "1px solid hsl(var(--border))",
-  borderRadius: 6,
-  fontSize: 11,
-  padding: "6px 8px",
+  background: "#18181b",
+  border: "1px solid #27272a",
+  borderRadius: 8,
+  fontSize: 12,
+  color: "#f4f4f5",
+  padding: "8px 12px",
 };
 
 export function ConversionChart({ campaigns }: { campaigns: CampaignAggregate[] }) {
@@ -49,22 +50,22 @@ export function ConversionChart({ campaigns }: { campaigns: CampaignAggregate[] 
     .map((c) => ({ name: shortName(c.name), value: c.conversion ?? 0, full: c.name }));
 
   return (
-    <Card className="p-5 bg-[#0a0a0d]/90 border border-white/[0.06] rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.65)] backdrop-blur-xl hover:border-white/[0.15] transition-all duration-200 ease-out group flex-1">
+    <Card className="p-6 bg-card border border-border rounded-xl shadow-sm flex-1">
       <div className="flex items-center justify-between mb-3.5">
-        <span className="text-[11px] font-bold font-mono uppercase tracking-[0.14em] text-zinc-500 group-hover:text-zinc-400 transition-colors">Taxa de conversão por campanha</span>
+        <h3 className="text-base font-semibold text-zinc-100">Taxa de conversão por campanha</h3>
       </div>
       <div className="flex gap-4 mb-3 flex-wrap">
-        <Legend color="hsl(var(--success))" label="≥25% — escalar" />
-        <Legend color="hsl(var(--warning))" label="15–25% — otimizar" />
-        <Legend color="hsl(var(--destructive))" label="<15% — revisar" />
+        <Legend color="#ffffff" label="≥25% — alta conversão" />
+        <Legend color="#a1a1aa" label="15–25% — média" />
+        <Legend color="#52525b" label="<15% — baixa" />
       </div>
       <div className="h-[180px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 4, right: 4, left: -16, bottom: 24 }}>
-            <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+            <CartesianGrid stroke="hsl(var(--border))" vertical={false} />
             <XAxis
               dataKey="name"
-              tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }}
+              tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
               axisLine={false}
               tickLine={false}
               interval={0}
@@ -73,7 +74,7 @@ export function ConversionChart({ campaigns }: { campaigns: CampaignAggregate[] 
               height={40}
             />
             <YAxis
-              tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+              tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
               axisLine={false}
               tickLine={false}
               tickFormatter={(v) => `${v}%`}
@@ -84,7 +85,7 @@ export function ConversionChart({ campaigns }: { campaigns: CampaignAggregate[] 
               formatter={(v: number) => [formatPercent(v), "Conversão"]}
               labelFormatter={(_, p) => p?.[0]?.payload?.full ?? ""}
             />
-            <Bar dataKey="value" radius={[5, 5, 0, 0]}>
+            <Bar dataKey="value" radius={[4, 4, 0, 0]}>
               {data.map((d, i) => (
                 <Cell key={i} fill={toneFor(d.value)} />
               ))}
@@ -107,17 +108,22 @@ export function CplChart({ campaigns }: { campaigns: CampaignAggregate[] }) {
   const max = Math.max(...data.map((d) => d.value), 1);
 
   return (
-    <Card className="p-5 bg-[#0a0a0d]/90 border border-white/[0.06] rounded-2xl overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.65)] backdrop-blur-xl hover:border-white/[0.15] transition-all duration-200 ease-out group">
+    <Card className="p-6 bg-card border border-border rounded-xl shadow-sm flex-1">
       <div className="flex items-center justify-between mb-3.5">
-        <span className="text-[11px] font-bold font-mono uppercase tracking-[0.14em] text-zinc-500 group-hover:text-zinc-400 transition-colors">CPL comparativo (R$)</span>
+        <h3 className="text-base font-semibold text-zinc-100">CPL comparativo (R$)</h3>
+      </div>
+      <div className="flex gap-4 mb-3 flex-wrap">
+        <Legend color="#ffffff" label="Menor CPL (melhor)" />
+        <Legend color="#a1a1aa" label="Médio" />
+        <Legend color="#52525b" label="Maior CPL" />
       </div>
       <div className="h-[140px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 4, right: 4, left: -8, bottom: 24 }}>
-            <CartesianGrid stroke="rgba(255,255,255,0.06)" vertical={false} />
+            <CartesianGrid stroke="hsl(var(--border))" vertical={false} />
             <XAxis
               dataKey="name"
-              tick={{ fontSize: 9, fill: "hsl(var(--muted-foreground))" }}
+              tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
               axisLine={false}
               tickLine={false}
               interval={0}
@@ -126,7 +132,7 @@ export function CplChart({ campaigns }: { campaigns: CampaignAggregate[] }) {
               height={40}
             />
             <YAxis
-              tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+              tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
               axisLine={false}
               tickLine={false}
               tickFormatter={(v) => `R$${v}`}
@@ -137,7 +143,7 @@ export function CplChart({ campaigns }: { campaigns: CampaignAggregate[] }) {
               formatter={(v: number) => [formatCurrency(v), "CPL"]}
               labelFormatter={(_, p) => p?.[0]?.payload?.full ?? ""}
             />
-            <Bar dataKey="value" radius={[5, 5, 0, 0]}>
+            <Bar dataKey="value" radius={[4, 4, 0, 0]}>
               {data.map((d, i) => (
                 <Cell key={i} fill={toneForCpl(d.value, min, max)} />
               ))}
@@ -151,7 +157,7 @@ export function CplChart({ campaigns }: { campaigns: CampaignAggregate[] }) {
 
 function Legend({ color, label }: { color: string; label: string }) {
   return (
-    <div className="flex items-center gap-1.5 text-[11px] font-mono text-zinc-400">
+    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
       <div className="w-2 h-2 rounded-sm" style={{ background: color }} />
       {label}
     </div>

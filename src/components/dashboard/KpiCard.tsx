@@ -42,42 +42,30 @@ export function KpiCard({
   return (
     <div
       className={cn(
-        // Entrada staggered — animation-delay via CSS custom property
-        "card-animated apple-press",
-        "relative overflow-hidden rounded-2xl cursor-default select-none",
-        // Glass material base
-        "bg-[rgba(10,10,13,0.72)] backdrop-blur-2xl",
-        "border border-white/[0.06] hover:border-white/[0.14]",
-        "shadow-[0_8px_32px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.04)]",
-        "hover:shadow-[0_12px_40px_rgba(0,0,0,0.7),inset_0_1px_0_rgba(255,255,255,0.07)]",
-        "transition-[border-color,box-shadow,background] duration-[120ms]",
+        "card-animated",
+        "relative overflow-hidden rounded-xl cursor-default select-none",
+        "bg-card border border-border/80 hover:border-zinc-700/80",
+        "shadow-sm transition-all duration-150",
         "p-5 group",
         className,
       )}
-      // Injetar o índice como custom property para o CSS calcular o delay
       style={{ "--stagger": index } as CSSProperties}
     >
-      {/* Reflexo interno no topo — simula superfície de material Apple */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.07] to-transparent pointer-events-none" />
-
-      <div className="flex items-center justify-between mb-3">
-        <p className="text-[11px] font-medium font-mono uppercase tracking-wider text-zinc-500 group-hover:text-zinc-400 transition-colors duration-[120ms]">
+      <div className="flex items-center justify-between gap-2 mb-2.5">
+        <p className="text-sm font-medium text-muted-foreground group-hover:text-zinc-300 transition-colors">
           {label}
         </p>
         {Icon && (
-          <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-white/[0.04] border border-white/[0.06] text-zinc-400 group-hover:border-white/[0.14] group-hover:text-zinc-200 transition-[border-color,color] duration-[120ms]">
-            <Icon className="h-3.5 w-3.5" strokeWidth={1.8} />
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-zinc-800/60 border border-border/60 text-zinc-400 group-hover:text-zinc-200 transition-colors">
+            <Icon className="h-4 w-4" strokeWidth={1.8} />
           </div>
         )}
       </div>
 
-      {/* Valor — tracking negativo óptico para displays grandes (SF Pro Display style) */}
       <p
         className={cn(
-          "tabular-nums font-sans text-white leading-none",
-          size === "lg"
-            ? "font-bold text-2xl sm:text-3xl tracking-[-0.03em]"
-            : "font-semibold text-xl sm:text-2xl tracking-tight",
+          "tabular-nums font-bold text-white tracking-tight leading-none",
+          size === "lg" ? "text-2xl sm:text-3xl" : "text-xl sm:text-2xl",
         )}
       >
         {value}
@@ -86,10 +74,10 @@ export function KpiCard({
       {hint && (
         <p
           className={cn(
-            "text-[11px] mt-2.5 font-mono tracking-tight transition-colors duration-[120ms]",
+            "text-xs mt-2.5 font-normal tracking-normal transition-colors",
             hintTone === "up" && "text-emerald-400 font-medium",
             hintTone === "down" && "text-red-400 font-medium",
-            hintTone === "neutral" && "text-zinc-500 group-hover:text-zinc-400",
+            hintTone === "neutral" && "text-muted-foreground",
           )}
         >
           {hint}

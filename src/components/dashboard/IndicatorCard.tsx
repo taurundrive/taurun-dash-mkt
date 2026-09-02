@@ -2,6 +2,8 @@ import { CSSProperties } from "react";
 import { HelpCircle } from "lucide-react";
 import { PaidIndicator } from "@/lib/aggregations";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Tooltip,
   TooltipContent,
@@ -51,70 +53,65 @@ export function IndicatorCard({ indicator, index = 0 }: Props) {
   return (
     <div
       className={cn(
-        "card-animated apple-press",
-        "relative overflow-hidden rounded-2xl cursor-default select-none",
-        "flex flex-col justify-between gap-5",
-        "bg-[rgba(10,10,13,0.72)] backdrop-blur-2xl",
-        "border border-white/[0.06] hover:border-white/[0.13]",
-        "shadow-[0_8px_32px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.04)]",
-        "hover:shadow-[0_12px_40px_rgba(0,0,0,0.68),inset_0_1px_0_rgba(255,255,255,0.06)]",
-        "transition-[border-color,box-shadow] duration-[120ms]",
-        "p-6 group",
+        "card-animated",
+        "relative overflow-hidden rounded-xl cursor-default select-none",
+        "flex flex-col justify-between gap-4",
+        "bg-card border border-border/80 hover:border-zinc-700/80",
+        "shadow-sm transition-all duration-150",
+        "p-5 sm:p-6 group",
       )}
       style={{ "--stagger": index } as CSSProperties}
     >
-      {/* Reflexo de superfície no topo */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.07] to-transparent pointer-events-none" />
-
       {/* Cabeçalho */}
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex items-center gap-1.5">
-            <p className="text-[11px] font-medium font-mono uppercase tracking-wider text-zinc-500 group-hover:text-zinc-400 transition-colors duration-[120ms]">
+            <p className="text-sm font-medium text-muted-foreground group-hover:text-zinc-300 transition-colors">
               {title}
             </p>
             {helpDesc && (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="text-zinc-500 hover:text-zinc-300 transition-colors outline-none apple-press-sm">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-4 w-4 text-muted-foreground hover:text-zinc-200 transition-colors p-0 hover:bg-transparent"
+                  >
                     <HelpCircle className="w-3.5 h-3.5" />
-                  </button>
+                  </Button>
                 </TooltipTrigger>
-                <TooltipContent className="max-w-[260px] bg-[#131318] border border-white/[0.08] text-xs text-zinc-300 p-2.5 rounded-xl shadow-[0_8px_24px_rgba(0,0,0,0.7)] backdrop-blur-xl">
+                <TooltipContent className="max-w-[260px] bg-popover border border-border text-xs text-zinc-300 p-2.5 rounded-lg shadow-md">
                   {helpDesc}
                 </TooltipContent>
               </Tooltip>
             )}
           </div>
-          <p className="text-[11px] font-mono text-zinc-600 mt-1 leading-relaxed">{formula}</p>
+          <p className="text-xs text-muted-foreground/70 mt-1 leading-relaxed">{formula}</p>
         </div>
 
-        {/* Badge: âncora espacial — cor transiciona suavemente ao mudar de status */}
-        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg shrink-0 bg-white/[0.03] border border-white/[0.06] transition-[border-color,background] duration-[120ms] group-hover:bg-white/[0.05] group-hover:border-white/[0.10]">
-          {/* Ponto de status: transition-[background-color] 200ms permite que a cor
-              mude suavemente quando o mês/dado muda — State Indication per Emil Kowalski */}
+        {/* Badge: status indicator */}
+        <Badge
+          variant="outline"
+          className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full shrink-0 bg-zinc-800/60 border-border text-xs font-normal"
+        >
           <span
             className="w-1.5 h-1.5 rounded-full shrink-0"
-            style={{
-              backgroundColor: color,
-              transition: "background-color 200ms cubic-bezier(0.23, 1, 0.32, 1)",
-            }}
+            style={{ backgroundColor: color }}
           />
-          <span className="text-[11px] font-mono font-medium uppercase tracking-[0.06em] text-zinc-300">
+          <span className="text-xs font-medium text-zinc-300">
             {statusLabel}
           </span>
-        </div>
+        </Badge>
       </div>
 
       {/* Corpo */}
       <div>
-        {/* Número: tracking-[-0.03em] — optical sizing para displays grandes */}
-        <div className="text-3xl font-bold font-sans tabular-nums tracking-[-0.03em] leading-none text-white">
+        <div className="text-2xl sm:text-3xl font-bold tabular-nums tracking-tight leading-none text-white">
           {display}
         </div>
 
-        <div className="mt-4 pt-3 border-t border-white/[0.06] group-hover:border-white/[0.09] transition-[border-color] duration-[120ms]">
-          <p className="text-[11px] font-mono text-zinc-500 leading-relaxed group-hover:text-zinc-400 transition-colors duration-[120ms]">
+        <div className="mt-3.5 pt-3 border-t border-border/60">
+          <p className="text-xs text-muted-foreground leading-relaxed">
             {benchmark}
           </p>
         </div>
