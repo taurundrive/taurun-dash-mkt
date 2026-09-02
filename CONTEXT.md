@@ -13,7 +13,7 @@
   - `/` (Performance Geral): KPIs de vendas, campanhas, leads, investimento e CPL em cards canônicos; funil de conversão sólido; tabela de campanhas e gráficos comparativos Recharts.
   - `/cac` (CAC & Performance Paga): Indicadores de ROAS, custo/receita, CAC, conversão e CPL; resumo da base do mês em card sólido e tabela de histórico mensal com linha ativa sutil.
   - `/leads` (Leads do WhatsApp): Automação Z-API em tempo real, filtros por abas de vendedor (`Tabs`), busca com `<Input>` e ícone Lucide, tabela limpa com `<Table>` e paginação com `<Pagination>`.
-  - `/metricas` (Instagram Insights): KPIs de alcance, impressões, seguidores e engajamento; pílulas de período (`7d / 15d / 30d`) no padrão shadcn.
+  - `/metricas` (Posts & Performance do Instagram): Novo painel de publicações e performance conectado à Meta Graph API v20.0 com cache multi-nível (15min). Exibe resumo consolidado do mês (Seguidores: 69k, Views de Reels, Alcance Único, Interações Totais, Posts Publicados), Top 3 Destaques visuais e Tabela Analítica Shadcn com ordenação customizada (mais visualizados, mais recentes, maior alcance, mais curtidos).
 
 ---
 
@@ -55,4 +55,7 @@
 - **Paleta Oficial Shadcn nos Gráficos**: Gráficos Recharts (`ComparisonCharts.tsx`) migrados para a paleta monocromática Zinc/White de alto contraste (branco `#ffffff` para alta performance, `zinc-400` para média e `zinc-600` para baixa), idêntico à documentação oficial do Shadcn.
 - **Botões e Badges Oficiais**: Botão primário com alto contraste em branco sólido (`bg-white text-zinc-950 hover:bg-zinc-200`) e badges em `bg-zinc-800/80 border-border text-zinc-200`.
 - **Zero Impacto em Regras de Negócio**: Preservação total de queries, mutations, hooks de período e regras de atribuição de safra e cálculo de ROAS/CAC.
+- **Painel de Posts & Collabs do Instagram**: Integração com a Meta Graph API v20.0 para busca de mídias e métricas individuais (`reach`, `views`, `likes`, `comments`, `shares`, `saved`, `total_interactions`). Suporte nativo e detecção automática de postagens em **Collab** com parceiros (via `collaborators{username,invite_status}`), exibindo badges com `@` dos colaboradores nos cards e na tabela analítica. Cache multi-nível (memória + `sessionStorage` com TTL de 15 minutos) para proteger cotas da API e garantir renderização instantânea (`0ms`).
+
+
 

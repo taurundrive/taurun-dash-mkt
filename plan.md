@@ -1,42 +1,33 @@
-# Plano de Implementação: Repaginação Visual Shadcn/ui Dark Mode
+# Plano de Implementação: Painel de Publicações e Performance do Instagram (`/metricas`)
 
-- [x] **Etapa 1: Tipografia Global & Tokens de Superfície (CSS e Tailwind)**
-  - [x] Importar a fonte `Inter` no `src/index.css` e remover imports obsoletos de `Plus Jakarta Sans` e `JetBrains Mono`
-  - [x] Configurar `Inter` como padrão em `tailwind.config.ts` (`fontFamily.sans`, `display`, `heading`, `mono`)
-  - [x] Atualizar as variáveis de design no `:root` / Dark (`src/index.css`) para os valores oficiais de Dark Zinc da Shadcn (`--background`, `--card`, `--border`, `--popover`, `--muted`)
-  - [x] Substituir utilitários de glassmorphism artificial por superfícies sólidas e foscas (`bg-zinc-900/60`, `border-zinc-800`)
+- [x] **Etapa 1: Serviço de Busca e Cache da Meta Graph API (`fetchInstagramPosts.ts`)**
+  - [x] Criar `src/integrations/meta/fetchInstagramPosts.ts` com funções para buscar dados do perfil e mídias
+  - [x] Implementar busca paralela de métricas detalhadas por post (`/insights` para Reels e Feed)
+  - [x] Implementar cache multi-nível (em memória + `sessionStorage` com TTL de 15 minutos) e função de invalidação
+  - [x] Implementar cálculo das métricas agregadas do mês (Total de views, alcance, interações, taxa de engajamento)
 
-- [x] **Etapa 2: Repaginação dos Componentes Base de KPI (`KpiCard` e `IndicatorCard`)**
-  - [x] Redesenhar `src/components/dashboard/KpiCard.tsx` com a anatomia canônica do Shadcn:
-    - [x] Título limpo em Inter (`text-sm font-medium text-zinc-400`)
-    - [x] Ícone discreto no topo direito
-    - [x] Valor grande e proeminente (`text-2xl sm:text-3xl font-bold tracking-tight text-white tabular-nums`)
-    - [x] Subtítulo / hint contextual em fonte Inter (`text-xs text-zinc-500`)
-  - [x] Redesenhar `src/components/dashboard/IndicatorCard.tsx` (utilizado na aba de CAC) alinhando com a mesma anatomia e superfícies sólidas foscas
+- [x] **Etapa 2: Componente dos Top 3 Posts em Destaque (`InstagramTopPosts.tsx`)**
+  - [x] Criar `src/components/dashboard/InstagramTopPosts.tsx`
+  - [x] Exibir os 3 posts com mais visualizações/alcance em cards com thumbnail, badge de ranking (#1, #2, #3), formato (Reels/Carrossel/Foto), métricas em destaque e link pro Instagram
 
-- [x] **Etapa 3: Repaginação da Barra Lateral (`AppSidebar.tsx`)**
-  - [x] Ajustar o container para fundo sólido `#09090b` e contorno lateral `border-zinc-800`
-  - [x] Padronizar tipografia e estados dos links de navegação (`text-sm font-medium`, ativo em `bg-zinc-800 text-white rounded-lg`)
-  - [x] Alinhar o cabeçalho/logo e o botão de logout ao estilo limpo do Shadcn
+- [x] **Etapa 3: Componente da Tabela Analítica de Publicações (`InstagramPostsTable.tsx`)**
+  - [x] Criar `src/components/dashboard/InstagramPostsTable.tsx` utilizando `<Table>` e `<Select>` do Shadcn
+  - [x] Implementar seletor de ordenação: "Mais visualizados (Padrão)", "Mais recentes", "Maior alcance", "Mais curtidos"
+  - [x] Renderizar colunas com thumbnail, legenda, data/hora, formato, views, alcance, likes, comentários, shares e engajamento
 
-- [x] **Etapa 4: Repaginação da Tela de Leads (`src/pages/Leads.tsx`)**
-  - [x] Substituir o container de vidro por Card sólido Shadcn (`bg-zinc-900/50 border border-zinc-800 rounded-xl p-6`)
-  - [x] Ajustar abas `<Tabs>` e `<TabsList>` para o padrão visual clássico do Shadcn
-  - [x] Ajustar campo de pesquisa `<Input>` e botão de exportação
-  - [x] Padronizar cabeçalhos e linhas da `<Table>` com tipografia Inter e divisores finos
+- [x] **Etapa 4: Reformulação da Página Principal (`src/pages/Metricas.tsx`)**
+  - [x] Apagar o conteúdo anterior da página conforme solicitado
+  - [x] Conectar ao `usePeriodFilter` para filtrar automaticamente os posts do mês selecionado no dashboard
+  - [x] Adicionar cards de resumo geral no padrão Shadcn Dark Zinc (`KpiCard`) no topo
+  - [x] Montar a seção dos Top 3 Destaques e a Tabela Analítica
+  - [x] Adicionar botão de "Atualizar dados" (forçar refresh do cache) e estados elegantes de loading (Skeleton) e empty state
 
-- [x] **Etapa 5: Repaginação da Tela de CAC (`src/pages/Cac.tsx`)**
-  - [x] Atualizar cards de métricas e blocos estatísticos da base do mês
-  - [x] Atualizar a tabela de histórico mensal com bordas e espaçamentos no padrão Shadcn
-  - [x] Remover classes remanescentes de fonte mono nos rótulos descritivos
-
-- [x] **Etapa 6: Repaginação do Dashboard Geral (`src/pages/Index.tsx`) & Métricas (`src/pages/Metricas.tsx`)**
-  - [x] Ajustar `CampaignsTable.tsx` com container sólido e tabela no padrão Shadcn
-  - [x] Ajustar os containers de gráficos e funil (`FunnelEstimate.tsx`, `ComparisonCharts.tsx`, `RoasBox.tsx`)
-  - [x] Ajustar a tela `Metricas.tsx` (Instagram Insights) com cards sólidos e pílulas de período limpas
-
-- [x] **Etapa 7: Validação Técnica, Testes e Memória**
+- [x] **Etapa 5: Testes Unitários e Validação Técnica**
+  - [x] Criar teste unitário em `src/test/instagram.test.ts` cobrindo agregação de KPIs, filtros de data e ordenação
   - [x] Executar type-check (`npx tsc --noEmit`)
   - [x] Executar suíte de testes (`npm test`)
-  - [x] Executar build de validação (`npm run build:dev`)
-  - [x] Atualizar `CONTEXT.md` e `logs/session_log.md` com a entrega completa
+  - [x] Executar build de desenvolvimento (`npm run build:dev`)
+
+- [x] **Etapa 6: Consolidação e Memória (`CONTEXT.md` e `logs/session_log.md`)**
+  - [x] Atualizar `CONTEXT.md` com a nova arquitetura e endpoints
+  - [x] Registrar a sessão em `logs/session_log.md`

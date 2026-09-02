@@ -1,191 +1,183 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  Users, Eye, Heart, MessageCircle, Send, Bookmark,
-  Image as ImageIcon, MousePointerClick, Radio, UserCheck,
+  Users,
+  Eye,
+  Radio,
+  Heart,
+  Image as ImageIcon,
+  RefreshCw,
+  Sparkles,
 } from "lucide-react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { KpiCard } from "@/components/dashboard/KpiCard";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
-import { formatNumber } from "@/lib/format";
-import { usePeriodFilter, PresetDays } from "@/context/PeriodFilterContext";
-import { cn } from "@/lib/utils";
-import { syncInstagramInsights } from "@/integrations/meta/fetchInstagramInsights";
-
-interface InstaRow {
-  date: string;
-  followers: number;
-  reach: number;
-  impressions: number;
-  profile_views: number;
-  likes: number;
-  comments: number;
-  shares: number;
-  saves: number;
-  website_clicks: number;
-  posts_published: number;
-}
+import { formatNumber, formatPercent } from "@/lib/format";
+import { usePeriodFilter } from "@/context/PeriodFilterContext";
+import {
+  fetchInstagramPosts,
+  InstagramFetchResult,
+} from "@/integrations/meta/fetchInstagramPosts";
+import { InstagramTopPosts } from "@/components/dashboard/InstagramTopPosts";
+import { InstagramPostsTable } from "@/components/dashboard/InstagramPostsTable";
 
 function MetricasContent() {
-  const [rows, setRows] = useState<InstaRow[] | null>(null);
+  const { label, filter, range } = usePeriodFilter();
+  const [data, setData] = useState<InstagramFetchResult | null>(null);
   const [loading, setLoading] = useState(true);
-  const { range, label, filter, setPreset } = usePeriodFilter();
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Mês selecionado no filtro (ex: "2026-09")
+  const targetMonth =
+    filter.mode === "month" ? filter.month : range.start.slice(0, 7);
+
+  const loadData = async (force = false) => {
+    if (force) setRefreshing(true);
+    else setLoading(true);
+
+    try {
+      const res = await fetchInstagramPosts(targetMonth, force);
+      setData(res);
+    } catch (err) {
+      console.error("[Metricas] Erro ao carregar posts:", err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
 
   useEffect(() => {
-    let active = true;
-    const fetchRows = async () => {
-      const { data, error } = await supabase
-        .from("instagram_metrics_daily")
-        .select("date, followers, reach, impressions, profile_views, likes, comments, shares, saves, website_clicks, posts_published")
-        .order("date", { ascending: true })
-        .limit(1000);
-      if (!active) return;
-      if (error) {
-        console.error("[metricas] fetch error:", error.message);
-        setRows([]);
-      } else {
-        setRows((data ?? []) as InstaRow[]);
-      }
-      setLoading(false);
-
-      // Tenta sincronizar direto com a Graph API (se o token tiver permissão de Instagram)
-      syncInstagramInsights(range.start, range.end).then((graphRows) => {
-        if (active && graphRows && graphRows.length > 0) {
-          setRows(graphRows);
-        }
-      });
-    };
-    fetchRows();
-
-    const channel = supabase
-      .channel("instagram_metrics_changes")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "instagram_metrics_daily" },
-        () => fetchRows(),
-      )
-      .subscribe();
-
+    let isMounted = true;
+    loadData().then(() => {
+      if (!isMounted) return;
+    });
     return () => {
-      active = false;
-      supabase.removeChannel(channel);
+      isMounted = false;
     };
-  }, [range.start, range.end]);
-
-  const filtered = useMemo(() => {
-    if (!rows) return [];
-    if (rows.length === 0) return [];
-    const sorted = [...rows].sort((a, b) => a.date.localeCompare(b.date));
-    return sorted.filter((r) => r.date >= range.start && r.date <= range.end);
-  }, [rows, range.start, range.end]);
-
-  const agg = useMemo(() => {
-    const sum = (k: keyof InstaRow) => filtered.reduce((s, r) => s + (Number(r[k]) || 0), 0);
-    const last = filtered[filtered.length - 1];
-    const first = filtered[0];
-    return {
-      followers: last?.followers ?? 0,
-      followersDelta: last && first ? last.followers - first.followers : 0,
-      reach: sum("reach"),
-      impressions: sum("impressions"),
-      profile_views: sum("profile_views"),
-      likes: sum("likes"),
-      comments: sum("comments"),
-      shares: sum("shares"),
-      saves: sum("saves"),
-      website_clicks: sum("website_clicks"),
-      posts_published: sum("posts_published"),
-    };
-  }, [filtered]);
-
-  if (loading) {
-    return (
-      <div className="max-w-[1600px] mx-auto w-full py-20 text-center text-sm text-muted-foreground">
-        Carregando métricas...
-      </div>
-    );
-  }
-
-  const empty = !rows || rows.length === 0;
+  }, [targetMonth]);
 
   return (
     <div className="space-y-6 max-w-[1600px] mx-auto w-full">
+      {/* Cabeçalho da Seção com Ação de Atualizar */}
       <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
-        <h2 className="text-sm font-medium text-muted-foreground">
-          Engajamento, alcance e crescimento do perfil do Instagram — {label}
-        </h2>
-        <div className="flex items-center gap-1 bg-zinc-900 border border-border rounded-lg p-1">
-          {([7, 15, 30] as PresetDays[]).map((d) => (
-            <Button
-              key={d}
-              variant="ghost"
-              size="sm"
-              onClick={() => setPreset(d)}
-              className={cn(
-                "h-7 px-3 text-xs font-medium rounded-md transition-colors",
-                filter.mode === "preset" && filter.preset === d
-                  ? "bg-zinc-800 text-white shadow-sm"
-                  : "text-muted-foreground hover:text-zinc-200",
-              )}
-            >
-              {d}d
-            </Button>
-          ))}
+        <div>
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-zinc-300" />
+            <h2 className="text-sm font-medium text-muted-foreground">
+              Performance de Conteúdo & Publicações — {label}
+            </h2>
+          </div>
+          <p className="text-xs text-muted-foreground/70 mt-0.5">
+            Métricas orgânicas oficiais da conta @tauruncompany via Meta Graph API
+          </p>
         </div>
+
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={loading || refreshing}
+          onClick={() => loadData(true)}
+          className="h-8 px-3 text-xs font-medium rounded-lg border-border hover:bg-zinc-800 hover:text-white transition-colors flex items-center gap-1.5 shadow-sm"
+        >
+          <RefreshCw
+            className={`w-3.5 h-3.5 text-muted-foreground ${
+              refreshing ? "animate-spin" : ""
+            }`}
+          />
+          <span>{refreshing ? "Atualizando..." : "Sincronizar agora"}</span>
+        </Button>
       </div>
 
-      {empty ? (
-        <Card className="p-12 text-center bg-card border border-border rounded-xl shadow-sm">
-          <p className="text-sm text-muted-foreground">
-            Nenhum dado de Instagram ainda. Configure a automação no n8n para alimentar este painel.
-          </p>
-        </Card>
-      ) : filtered.length === 0 ? (
-        <Card className="p-12 text-center bg-card border border-border rounded-xl shadow-sm">
-          <p className="text-sm text-muted-foreground">
-            Sem dados do Instagram no período selecionado ({label}).
+      {/* Loading Skeletons */}
+      {loading ? (
+        <div className="space-y-6 animate-pulse">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Card
+                key={i}
+                className="h-28 bg-card border border-border/60 rounded-xl p-5"
+              />
+            ))}
+          </div>
+          <div className="h-64 bg-card border border-border/60 rounded-xl" />
+          <div className="h-80 bg-card border border-border/60 rounded-xl" />
+        </div>
+      ) : !data || data.posts.length === 0 ? (
+        /* Empty State */
+        <Card className="p-12 text-center bg-card border border-border rounded-xl shadow-sm space-y-3">
+          <div className="w-12 h-12 rounded-full bg-zinc-850 border border-border mx-auto flex items-center justify-center text-zinc-400">
+            <ImageIcon className="w-6 h-6" />
+          </div>
+          <h3 className="text-base font-semibold text-zinc-100">
+            Nenhuma publicação encontrada em {label}
+          </h3>
+          <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed">
+            Não localizamos posts publicados pela @tauruncompany no mês selecionado.
+            Utilize o seletor de período no topo da tela para visualizar outros meses.
           </p>
         </Card>
       ) : (
+        /* Dados Carregados */
         <>
-          {/* Linha 1: highlights principais */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {/* Linha de KPIs Consolidados do Período */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
             <KpiCard
               label="Seguidores"
-              value={formatNumber(agg.followers)}
+              value={formatNumber(data.summary.followersCount)}
               icon={Users}
               size="lg"
               index={0}
-              hint={agg.followersDelta !== 0
-                ? `${agg.followersDelta > 0 ? "+" : ""}${formatNumber(agg.followersDelta)} no período`
-                : "sem variação"}
-              hintTone={agg.followersDelta > 0 ? "up" : agg.followersDelta < 0 ? "down" : "neutral"}
+              hint="Perfil @tauruncompany"
             />
-            <KpiCard label="Alcance" value={formatNumber(agg.reach)} icon={Radio} size="lg" index={1} />
-            <KpiCard label="Impressões" value={formatNumber(agg.impressions)} icon={Eye} size="lg" index={2} />
-            <KpiCard label="Visualizações do perfil" value={formatNumber(agg.profile_views)} icon={UserCheck} size="lg" index={3} />
+            <KpiCard
+              label="Visualizações de Vídeo"
+              value={formatNumber(data.summary.totalViews)}
+              icon={Eye}
+              size="lg"
+              index={1}
+              hint="Reproduções de Reels no mês"
+            />
+            <KpiCard
+              label="Alcance Único"
+              value={formatNumber(data.summary.totalReach)}
+              icon={Radio}
+              size="lg"
+              index={2}
+              hint="Contas alcançadas no período"
+            />
+            <KpiCard
+              label="Interações Totais"
+              value={formatNumber(
+                data.summary.totalLikes +
+                  data.summary.totalComments +
+                  data.summary.totalShares,
+              )}
+              icon={Heart}
+              size="lg"
+              index={3}
+              hint={`${formatNumber(data.summary.totalLikes)} likes · ${formatNumber(
+                data.summary.totalComments,
+              )} coments`}
+            />
+            <KpiCard
+              label="Posts no Mês"
+              value={formatNumber(data.summary.totalPosts)}
+              icon={ImageIcon}
+              size="lg"
+              index={4}
+              hint={
+                data.summary.totalCollabs > 0
+                  ? `${data.summary.totalCollabs} em collab · ${formatPercent(data.summary.avgEngagementRate)} eng.`
+                  : `Taxa média: ${formatPercent(data.summary.avgEngagementRate)}`
+              }
+            />
           </div>
 
-          {/* Linha 2: engajamento */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium text-muted-foreground px-0.5">Engajamento</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <KpiCard label="Curtidas" value={formatNumber(agg.likes)} icon={Heart} index={4} />
-              <KpiCard label="Comentários" value={formatNumber(agg.comments)} icon={MessageCircle} index={5} />
-              <KpiCard label="Compartilhamentos" value={formatNumber(agg.shares)} icon={Send} index={6} />
-              <KpiCard label="Salvamentos" value={formatNumber(agg.saves)} icon={Bookmark} index={7} />
-            </div>
-          </div>
+          {/* Top 3 Publicações em Destaque */}
+          <InstagramTopPosts posts={data.posts} />
 
-          {/* Linha 3: ações & conteúdo */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium text-muted-foreground px-0.5">Ações & Conteúdo</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <KpiCard label="Cliques no site" value={formatNumber(agg.website_clicks)} icon={MousePointerClick} index={8} />
-              <KpiCard label="Posts publicados" value={formatNumber(agg.posts_published)} icon={ImageIcon} index={9} />
-            </div>
-          </div>
+          {/* Tabela Analítica Completa com Ordenação */}
+          <InstagramPostsTable posts={data.posts} />
         </>
       )}
     </div>
@@ -194,7 +186,7 @@ function MetricasContent() {
 
 export default function Metricas() {
   return (
-    <DashboardLayout title="Métricas">
+    <DashboardLayout title="Métricas do Instagram">
       <MetricasContent />
     </DashboardLayout>
   );
