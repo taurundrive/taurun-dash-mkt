@@ -9,6 +9,7 @@ import Index from "./pages/Index.tsx";
 import Cac from "./pages/Cac.tsx";
 import Metricas from "./pages/Metricas.tsx";
 import Leads from "./pages/Leads.tsx";
+import Diagnostico from "./pages/Diagnostico.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ const App = () => (
           <SidebarProvider>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/diagnostico" element={<Diagnostico />} />
               <Route path="/metricas" element={<Metricas />} />
               <Route path="/cac" element={<Cac />} />
               <Route path="/leads" element={<Leads />} />

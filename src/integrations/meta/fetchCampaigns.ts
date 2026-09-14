@@ -19,7 +19,7 @@
 
 import type { Campaign, CampaignType, DailyCampaignPoint } from "@/data/types";
 import type { MetaAction, MetaInsightRow } from "./types";
-import { fetchAdAccounts, fetchCampaignInsights } from "./client";
+import { fetchAdAccounts, fetchCampaignInsights, invokeMetaProxy } from "./client";
 
 // ── Tipos de objetivo que mapeiam para "Conversas por mensagem iniciadas" ────
 const CONVERSAS_OBJECTIVES = new Set([
@@ -59,43 +59,48 @@ function inferType(objective: string | null | undefined, name: string): Campaign
 }
 
 /**
- * Action types da Meta que contam como "resultado / lead" para cada
- * tipo de campanha:
+ * Action types da Meta que contam exclusivamente como conversas reais ou leads qualificados:
+ * - "onsite_conversion.messaging_conversation_started_7d"
+ * - "onsite_conversion.messaging_first_reply"
+ * - "lead"
  *
- * - Conversas: "onsite_conversion.messaging_conversation_started_7d"
- *              "onsite_conversion.messaging_first_reply"
- *              "lead"
- * - Tráfego:   "link_click" ou "landing_page_view"
- * - Alcance:   sem resultado claro — usa impressions como proxy
+ * Cliques de link (link_click) e visualizações de página (landing_page_view) pertencem
+ * ao objetivo de Tráfego/Cliques e NUNCA devem ser computados como leads de WhatsApp.
  *
  * Referência: https://developers.facebook.com/docs/marketing-api/insights/action-types
  */
-const LEAD_ACTION_TYPES = new Set([
+export const LEAD_ACTION_TYPES = new Set([
   "onsite_conversion.messaging_conversation_started_7d",
   "onsite_conversion.messaging_first_reply",
   "lead",
 ]);
 
-const TRAFFIC_ACTION_TYPES = new Set([
+export const TRAFFIC_ACTION_TYPES = new Set([
   "link_click",
   "landing_page_view",
 ]);
 
 /**
- * Soma os "resultados" de um array de actions de acordo com o tipo de campanha.
- * Para campanhas de Conversas → conta ações de mensagem/lead.
- * Para Tráfego → conta cliques de link / visualizações de página de destino.
+ * Soma estritamente conversas reais iniciadas e leads.
+ * Cliques de link ou page views NUNCA entram como leads.
  */
-function sumResults(actions: MetaAction[] | undefined, type: CampaignType): number {
+export function sumLeads(actions: MetaAction[] | undefined): number {
   if (!actions || actions.length === 0) return 0;
 
-  const targetSet =
-    type === "Conversas por mensagem iniciadas"
-      ? LEAD_ACTION_TYPES
-      : TRAFFIC_ACTION_TYPES;
+  return actions
+    .filter((a) => LEAD_ACTION_TYPES.has(a.action_type))
+    .reduce((sum, a) => sum + (Number(a.value) || 0), 0);
+}
+
+/**
+ * Soma cliques a partir do campo row.clicks ou fallback em actions de tráfego.
+ */
+export function sumClicks(actions: MetaAction[] | undefined, directClicks: number): number {
+  if (directClicks > 0) return directClicks;
+  if (!actions || actions.length === 0) return 0;
 
   return actions
-    .filter((a) => targetSet.has(a.action_type))
+    .filter((a) => TRAFFIC_ACTION_TYPES.has(a.action_type))
     .reduce((sum, a) => sum + (Number(a.value) || 0), 0);
 }
 
@@ -111,10 +116,20 @@ export async function fetchMetaCampaigns(
   since: string,
   until: string
 ): Promise<Campaign[]> {
+  // 1. Prioridade Segura: busca através da Supabase Edge Function 'meta-proxy' (token protegido no servidor)
+  const proxyCampaigns = await invokeMetaProxy<Campaign[]>("campaigns", { since, until });
+  if (proxyCampaigns && Array.isArray(proxyCampaigns)) {
+    return proxyCampaigns;
+  }
+
+  // 2. Fallback gracioso: caso a Edge Function não esteja implantada ou responda com erro,
+  // recorre temporariamente ao token local de desenvolvimento caso configurado no .env
   const token = import.meta.env.VITE_META_ACCESS_TOKEN as string | undefined;
 
   if (!token) {
-    console.warn("[MetaCampaigns] VITE_META_ACCESS_TOKEN não configurado.");
+    console.warn(
+      "[MetaCampaigns] Edge function 'meta-proxy' não retornou dados e VITE_META_ACCESS_TOKEN não está presente no .env."
+    );
     return [];
   }
 
@@ -169,9 +184,10 @@ export async function fetchMetaCampaigns(
       invested: 0,
     };
 
-    existing.clicks  += Number(row.clicks) || 0;
+    const directClicks = Number(row.clicks) || 0;
+    existing.clicks   += sumClicks(row.actions, directClicks);
     existing.invested += Number(row.spend) || 0;
-    existing.leads   += sumResults(row.actions, type);
+    existing.leads    += sumLeads(row.actions);
 
     bucket.daily.set(row.date_start, existing);
   }

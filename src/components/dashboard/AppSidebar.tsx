@@ -14,10 +14,11 @@ import {
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { LayoutDashboard, BarChart2, Target, MessageSquare, LogOut } from "lucide-react";
+import { LayoutDashboard, BarChart2, Target, MessageSquare, LogOut, Activity } from "lucide-react";
 
 const items = [
   { title: "Performance Geral", url: "/", icon: LayoutDashboard },
+  { title: "Diagnóstico de Tráfego", url: "/diagnostico", icon: Activity },
   { title: "Métricas", url: "/metricas", icon: BarChart2 },
   { title: "CAC", url: "/cac", icon: Target },
   { title: "Leads", url: "/leads", icon: MessageSquare },

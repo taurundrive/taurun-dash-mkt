@@ -7,6 +7,7 @@
  */
 
 import { supabase } from "@/integrations/supabase/client";
+import { invokeMetaProxy } from "./client";
 
 export interface InstaRow {
   date: string;
@@ -74,7 +75,14 @@ export async function getInstagramBusinessAccount(token?: string): Promise<{
  * e distribui proporcionalmente pela série temporal para exibição perfeita nos gráficos e KPIs.
  */
 export async function syncInstagramInsights(since: string, until: string): Promise<InstaRow[] | null> {
-  const accessToken = import.meta.env.VITE_META_ACCESS_TOKEN as string;
+  // 1. Prioridade Segura: Busca via Edge Function meta-proxy
+  const proxyRows = await invokeMetaProxy<InstaRow[]>("instagram-insights", { since, until });
+  if (proxyRows && Array.isArray(proxyRows) && proxyRows.length > 0) {
+    return proxyRows;
+  }
+
+  // 2. Fallback gracioso com token local de desenvolvimento
+  const accessToken = import.meta.env.VITE_META_ACCESS_TOKEN as string | undefined;
   if (!accessToken) return null;
 
   const igAccount = await getInstagramBusinessAccount(accessToken);

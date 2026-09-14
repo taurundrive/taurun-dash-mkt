@@ -9,6 +9,7 @@
  * Documentação: https://developers.facebook.com/docs/graph-api/overview
  */
 
+import { supabase } from "@/integrations/supabase/client";
 import type {
   MetaAdAccount,
   MetaPagedResponse,
@@ -19,8 +20,39 @@ import type {
 const META_API_VERSION = "v20.0";
 const META_BASE_URL = `https://graph.facebook.com/${META_API_VERSION}`;
 
-// Token de acesso — injetado pelo Vite via .env (VITE_META_ACCESS_TOKEN)
-const ACCESS_TOKEN = import.meta.env.VITE_META_ACCESS_TOKEN as string;
+// Token de acesso — mantido como fallback temporário durante a transição
+const ACCESS_TOKEN = import.meta.env.VITE_META_ACCESS_TOKEN as string | undefined;
+
+/**
+ * Invoca a Edge Function segura 'meta-proxy' no Supabase.
+ *
+ * Se a função responder com sucesso, retorna os dados tipados sem expor o token no browser.
+ * Se falhar (ex: função ainda não implantada ou erro de rede), retorna null para permitir fallback gracioso.
+ */
+export async function invokeMetaProxy<T>(
+  action: string,
+  payload: Record<string, unknown> = {}
+): Promise<T | null> {
+  try {
+    const { data, error } = await supabase.functions.invoke("meta-proxy", {
+      body: { action, ...payload },
+    });
+
+    if (error) {
+      console.warn(`[MetaProxy] Erro na Edge Function '${action}':`, error.message);
+      return null;
+    }
+
+    if (data && typeof data === "object" && "data" in data) {
+      return (data as { ok?: boolean; data: T }).data;
+    }
+
+    return (data as T) ?? null;
+  } catch (err) {
+    console.warn(`[MetaProxy] Falha de conexão com a Edge Function '${action}':`, err);
+    return null;
+  }
+}
 
 // ── Utilitário interno: GET com paginação automática ─────────────────────────
 async function fetchAllPages<T>(url: string): Promise<T[]> {

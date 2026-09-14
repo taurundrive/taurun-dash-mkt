@@ -45,6 +45,8 @@ export interface InstagramFetchResult {
   timestamp: number;
 }
 
+import { invokeMetaProxy } from "./client";
+
 const META_API_VERSION = "v20.0";
 const META_BASE_URL = `https://graph.facebook.com/${META_API_VERSION}`;
 const CACHE_TTL_MS = 15 * 60 * 1000; // 15 minutos
@@ -176,12 +178,6 @@ export async function fetchInstagramPosts(
   month?: string,
   forceRefresh = false,
 ): Promise<InstagramFetchResult | null> {
-  const accessToken = import.meta.env.VITE_META_ACCESS_TOKEN as string;
-  if (!accessToken) {
-    console.warn("[MetaAPI] VITE_META_ACCESS_TOKEN não configurado.");
-    return null;
-  }
-
   const cacheKey = month || "all";
 
   // 1. Verifica cache em memória e sessionStorage (se não for forceRefresh)
@@ -202,7 +198,39 @@ export async function fetchInstagramPosts(
     } catch {}
   }
 
-  // 2. Busca perfil
+  // 2. Prioridade Segura: Busca via Edge Function meta-proxy
+  const since = month ? `${month}-01` : "";
+  const until = month ? `${month}-31` : "";
+  const proxyResult = await invokeMetaProxy<{
+    summary: InstagramPeriodSummary;
+    posts: InstagramPost[];
+  }>("instagram-posts", { since, until, month });
+
+  if (proxyResult?.summary && Array.isArray(proxyResult?.posts) && proxyResult.posts.length > 0) {
+    const result: InstagramFetchResult = {
+      summary: proxyResult.summary,
+      posts: proxyResult.posts,
+      fromCache: false,
+      timestamp: Date.now(),
+    };
+    const expiry = Date.now() + CACHE_TTL_MS;
+    memoryCache.set(cacheKey, { data: result, expiry });
+    try {
+      sessionStorage.setItem(`ig_posts_collab_v3_${cacheKey}`, JSON.stringify({ data: result, expiry }));
+    } catch {}
+    return result;
+  }
+
+  // 3. Fallback gracioso para token de desenvolvimento local
+  const accessToken = import.meta.env.VITE_META_ACCESS_TOKEN as string | undefined;
+  if (!accessToken) {
+    console.warn(
+      "[MetaAPI] Edge function 'meta-proxy' não retornou dados e VITE_META_ACCESS_TOKEN não está presente no .env."
+    );
+    return null;
+  }
+
+  // 4. Busca perfil localmente
   const profile = await getInstagramProfile(accessToken);
   if (!profile) {
     console.warn("[MetaAPI] Nenhum Instagram Business vinculado encontrado.");

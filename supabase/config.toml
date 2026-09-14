@@ -1,4 +1,7 @@
-project_id = "gqdzxvjydugheoxemfqp"
+project_id = "bwcrfcrvqnpfbqhqsbcy"
+
+[functions.meta-proxy]
+verify_jwt = false
 
 [functions.ingest-campaigns]
 verify_jwt = false
