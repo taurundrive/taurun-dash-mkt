@@ -478,9 +478,8 @@ serve(async (req: Request) => {
           let totalInteractions = 0;
 
           try {
-            const metricList = isReel
-              ? "reach,plays,saved,shares,total_interactions"
-              : "reach,impressions,saved,shares,total_interactions";
+            // A Meta unificou as métricas de Reels e Feed para 'views' nas versões recentes da Graph API
+            const metricList = "reach,views,saved,shares,total_interactions";
             const insUrl = `${META_BASE_URL}/${pid}/insights?metric=${metricList}&access_token=${token}`;
             const insRes = await fetch(insUrl);
             if (insRes.ok) {
@@ -489,7 +488,7 @@ serve(async (req: Request) => {
                 const name = String(m.name).toLowerCase();
                 const val = Number(m.values?.[0]?.value) || 0;
                 if (name === "reach") reach = val;
-                if (name === "plays" || name === "impressions") views = val;
+                if (name === "views" || name === "plays" || name === "impressions") views = val;
                 if (name === "saved") saved = val;
                 if (name === "shares") shares = val;
                 if (name === "total_interactions") totalInteractions = val;
@@ -544,6 +543,13 @@ serve(async (req: Request) => {
           };
         })
       );
+
+      // Ordenação padrão: mais visualizados primeiro (para Reels, views; para feed, reach)
+      postsWithInsights.sort((a, b) => {
+        const scoreA = a.views > 0 ? a.views : a.reach;
+        const scoreB = b.views > 0 ? b.views : b.reach;
+        return scoreB - scoreA;
+      });
 
       // 4. Calcula o resumo consolidado do período
       const totalReach = postsWithInsights.reduce((sum, p) => sum + p.reach, 0);

@@ -19,7 +19,13 @@ interface Props {
 }
 
 export function InstagramTopPosts({ posts }: Props) {
-  const top3 = posts.slice(0, 3);
+  // Garante ordenação defensiva por maior audiência (views para Reels / reach para outros)
+  const sorted = [...posts].sort((a, b) => {
+    const scoreA = (a.views && a.views > 0) ? a.views : (a.reach || 0);
+    const scoreB = (b.views && b.views > 0) ? b.views : (b.reach || 0);
+    return scoreB - scoreA;
+  });
+  const top3 = sorted.slice(0, 3);
   if (top3.length === 0) return null;
 
   return (

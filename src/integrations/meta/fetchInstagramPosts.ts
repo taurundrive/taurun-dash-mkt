@@ -120,10 +120,8 @@ async function fetchPostInsights(
   saved: number;
   totalInteractions: number;
 }> {
-  const isReels = mediaProductType === "REELS";
-  const metrics = isReels
-    ? "reach,saved,shares,views,total_interactions"
-    : "reach,saved,shares,total_interactions";
+  // A Meta unificou as métricas para 'views' em todas as publicações (Reels e Feed)
+  const metrics = "reach,saved,shares,views,total_interactions";
 
   try {
     const url = `${META_BASE_URL}/${postId}/insights?metric=${metrics}&access_token=${accessToken}`;
@@ -158,13 +156,14 @@ export function clearInstagramCache(month?: string) {
     memoryCache.delete(month);
     try {
       sessionStorage.removeItem(`ig_posts_collab_v3_${month}`);
+      sessionStorage.removeItem(`ig_posts_collab_v4_${month}`);
     } catch {}
   } else {
     memoryCache.clear();
     try {
       const keys = Object.keys(sessionStorage);
       for (const k of keys) {
-        if (k.startsWith("ig_posts_collab_v3_")) sessionStorage.removeItem(k);
+        if (k.startsWith("ig_posts_collab_")) sessionStorage.removeItem(k);
       }
     } catch {}
   }
@@ -187,7 +186,7 @@ export async function fetchInstagramPosts(
       return { ...mem.data, fromCache: true };
     }
     try {
-      const stored = sessionStorage.getItem(`ig_posts_collab_v3_${cacheKey}`);
+      const stored = sessionStorage.getItem(`ig_posts_collab_v4_${cacheKey}`);
       if (stored) {
         const parsed = JSON.parse(stored);
         if (parsed.expiry > Date.now()) {
@@ -207,16 +206,73 @@ export async function fetchInstagramPosts(
   }>("instagram-posts", { since, until, month });
 
   if (proxyResult?.summary && Array.isArray(proxyResult?.posts) && proxyResult.posts.length > 0) {
+    let posts = [...proxyResult.posts];
+    let summary = { ...proxyResult.summary };
+
+    // Se o proxy retornou posts mas todas as views vieram zeradas (versão anterior na nuvem)
+    // e temos o token configurado no .env, enriquecemos os posts com os dados reais de views
+    const allViewsZero = posts.every((p) => (p.views || 0) === 0);
+    const accessToken = import.meta.env.VITE_META_ACCESS_TOKEN as string | undefined;
+
+    if (allViewsZero && accessToken) {
+      const batchSize = 5;
+      for (let i = 0; i < posts.length; i += batchSize) {
+        const slice = posts.slice(i, i + batchSize);
+        const insightPromises = slice.map((p) =>
+          fetchPostInsights(p.id, p.mediaProductType || "", accessToken)
+        );
+        const insightResults = await Promise.all(insightPromises);
+        for (let j = 0; j < slice.length; j++) {
+          const p = slice[j];
+          const ins = insightResults[j];
+          p.reach = ins.reach || p.reach;
+          p.views = ins.views || p.views;
+          p.shares = ins.shares || p.shares;
+          p.saved = ins.saved || p.saved;
+          if (ins.totalInteractions > 0) p.totalInteractions = ins.totalInteractions;
+          p.engagementRate =
+            p.reach > 0
+              ? Number(((p.totalInteractions / p.reach) * 100).toFixed(2))
+              : summary.followersCount > 0
+              ? Number(((p.totalInteractions / summary.followersCount) * 100).toFixed(2))
+              : 0;
+        }
+      }
+
+      // Recalcula totais do período
+      const totalViews = posts.reduce((s, p) => s + p.views, 0);
+      const totalReach = posts.reduce((s, p) => s + p.reach, 0);
+      const totalShares = posts.reduce((s, p) => s + p.shares, 0);
+      const totalInteractionsSum = posts.reduce((s, p) => s + p.totalInteractions, 0);
+      const avgEngagementRate =
+        totalReach > 0 ? (totalInteractionsSum / totalReach) * 100 : summary.avgEngagementRate;
+
+      summary = {
+        ...summary,
+        totalViews,
+        totalReach,
+        totalShares,
+        avgEngagementRate: Number(avgEngagementRate.toFixed(2)),
+      };
+    }
+
+    // Ordenação garantida por maior audiência (views > 0 ? views : reach)
+    posts.sort((a, b) => {
+      const scoreA = a.views > 0 ? a.views : a.reach;
+      const scoreB = b.views > 0 ? b.views : b.reach;
+      return scoreB - scoreA;
+    });
+
     const result: InstagramFetchResult = {
-      summary: proxyResult.summary,
-      posts: proxyResult.posts,
+      summary,
+      posts,
       fromCache: false,
       timestamp: Date.now(),
     };
     const expiry = Date.now() + CACHE_TTL_MS;
     memoryCache.set(cacheKey, { data: result, expiry });
     try {
-      sessionStorage.setItem(`ig_posts_collab_v3_${cacheKey}`, JSON.stringify({ data: result, expiry }));
+      sessionStorage.setItem(`ig_posts_collab_v4_${cacheKey}`, JSON.stringify({ data: result, expiry }));
     } catch {}
     return result;
   }
